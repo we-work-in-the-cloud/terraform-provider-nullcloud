@@ -18,9 +18,9 @@ jobs:
 
       - uses: actions/setup-go@v5
         with:
-          go-version-file: 'terraform-provider-nullcloud/go.mod'
+          go-version-file: 'go.mod'
           cache: true
-          cache-dependency-path: 'terraform-provider-nullcloud/go.sum'
+          cache-dependency-path: 'go.sum'
 
       - name: Import GPG key
         uses: crazy-max/ghaction-import-gpg@v6
