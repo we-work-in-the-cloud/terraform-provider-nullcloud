@@ -1,4 +1,4 @@
-# terraform-provider-nullcloud
+# NullCloud - Terraform provider
 
 Terraform provider for [NullCloud](https://registry.terraform.io/providers/we-work-in-the-cloud/nullcloud).
 

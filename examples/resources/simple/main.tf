@@ -2,7 +2,7 @@ terraform {
   required_version = ">= 1.14"
   required_providers {
     nullcloud = {
-      source = "registry.terraform.io/we-work-in-the-cloud/nullcloud"
+      source = "we-work-in-the-cloud/nullcloud"
     }
   }
 }

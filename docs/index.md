@@ -11,6 +11,15 @@ The NullCloud provider manages VPCs, subnets, and virtual server instances on Nu
 ## Example Usage
 
 ```terraform
+terraform {
+  required_version = ">= 1.14"
+  required_providers {
+    nullcloud = {
+      source = "we-work-in-the-cloud/nullcloud"
+    }
+  }
+}
+
 provider "nullcloud" {
   url   = "http://localhost:8080"
   token = "mytoken"
