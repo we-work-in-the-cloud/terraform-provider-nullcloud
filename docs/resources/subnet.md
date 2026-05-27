@@ -31,5 +31,6 @@ resource "nullcloud_subnet" "example" {
 
 - `cidr_block` (String)
 - `created_at` (String)
+- `crn` (String)
 - `id` (String) The ID of this resource.
 - `status` (String)

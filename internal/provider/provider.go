@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework/action"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
@@ -12,6 +13,7 @@ import (
 )
 
 var _ provider.Provider = &NullCloudProvider{}
+var _ provider.ProviderWithActions = &NullCloudProvider{}
 
 type NullCloudProvider struct{}
 
@@ -53,6 +55,7 @@ func (p *NullCloudProvider) Configure(ctx context.Context, req provider.Configur
 	c := client.New(config.URL.ValueString(), config.Token.ValueString())
 	resp.DataSourceData = c
 	resp.ResourceData = c
+	resp.ActionData = c
 }
 
 func (p *NullCloudProvider) Resources(_ context.Context) []func() resource.Resource {
@@ -64,5 +67,15 @@ func (p *NullCloudProvider) Resources(_ context.Context) []func() resource.Resou
 }
 
 func (p *NullCloudProvider) DataSources(_ context.Context) []func() datasource.DataSource {
-	return nil
+	return []func() datasource.DataSource{
+		NewVPCDataSource,
+		NewSubnetDataSource,
+		NewInstanceDataSource,
+	}
+}
+
+func (p *NullCloudProvider) Actions(_ context.Context) []func() action.Action {
+	return []func() action.Action{
+		NewInstanceAction,
+	}
 }

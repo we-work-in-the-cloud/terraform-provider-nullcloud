@@ -37,6 +37,7 @@ resource "nullcloud_instance" "example" {
 ### Read-Only
 
 - `created_at` (String)
+- `crn` (String)
 - `id` (String) The ID of this resource.
 - `primary_ip` (String)
 - `status` (String)

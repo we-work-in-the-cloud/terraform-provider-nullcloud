@@ -10,6 +10,20 @@ Terraform provider for [NullCloud](https://registry.terraform.io/providers/we-wo
 | `nullcloud_subnet` | Subnet within a VPC |
 | `nullcloud_instance` | Virtual server instance |
 
+## Data Sources
+
+| Data Source | Description |
+|---|---|
+| `nullcloud_vpc` | Fetch a VPC by ID |
+| `nullcloud_subnet` | Fetch a subnet by ID |
+| `nullcloud_instance` | Fetch a virtual server instance by ID |
+
+## Actions
+
+| Action | Description |
+|---|---|
+| `nullcloud_instance_action` | Perform a `start`, `stop`, or `restart` on an instance |
+
 ## Usage
 
 ```hcl

@@ -1,4 +1,5 @@
 terraform {
+  required_version = ">= 1.14"
   required_providers {
     nullcloud = {
       source = "registry.terraform.io/we-work-in-the-cloud/nullcloud"
@@ -27,8 +28,31 @@ resource "nullcloud_instance" "main" {
   image     = "ubuntu-22-04"
 }
 
+action "nullcloud_instance_action" "stop" {
+  config {
+    instance_id = nullcloud_instance.main.id
+    action      = "stop"
+  }
+}
+
+data "nullcloud_vpc" "main" {
+  id = nullcloud_vpc.main.id
+}
+
+data "nullcloud_subnet" "main" {
+  id = nullcloud_subnet.main.id
+}
+
+data "nullcloud_instance" "main" {
+  id = nullcloud_instance.main.id
+}
+
 output "vpc_id" {
   value = nullcloud_vpc.main.id
+}
+
+output "vpc_crn" {
+  value = data.nullcloud_vpc.main.crn
 }
 
 output "subnet_cidr" {
@@ -37,4 +61,8 @@ output "subnet_cidr" {
 
 output "instance_ip" {
   value = nullcloud_instance.main.primary_ip
+}
+
+output "instance_status" {
+  value = nullcloud_instance.main.status
 }

@@ -196,6 +196,14 @@ func (c *Client) GetInstance(id string) (*Instance, bool, error) {
 	return &inst, true, nil
 }
 
+func (c *Client) InstanceAction(id, action string) (*Instance, error) {
+	var inst Instance
+	if _, err := c.do("POST", "/v1/instances/"+id+"/actions", map[string]string{"type": action}, &inst); err != nil {
+		return nil, err
+	}
+	return &inst, nil
+}
+
 func (c *Client) DeleteInstance(id string) error {
 	status, err := c.do("DELETE", "/v1/instances/"+id, nil, nil)
 	if err != nil && status != 404 {

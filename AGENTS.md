@@ -13,8 +13,16 @@ Both live under the same parent directory. When making changes to one, always ch
 
 ```
 internal/
-  client/         # HTTP client — mirrors backend model types and owns CRUD calls
-  provider/       # Terraform resources — one file per resource type
+  client/                      # HTTP client — mirrors backend model types and owns CRUD calls
+  provider/
+    vpc_resource.go            # Resource: nullcloud_vpc
+    subnet_resource.go         # Resource: nullcloud_subnet
+    instance_resource.go       # Resource: nullcloud_instance
+    vpc_data_source.go         # Data source: nullcloud_vpc
+    subnet_data_source.go      # Data source: nullcloud_subnet
+    instance_data_source.go    # Data source: nullcloud_instance
+    instance_action.go         # Action: nullcloud_instance_action (start/stop/restart)
+    provider.go                # Registers all resources, data sources, and actions
 docs/resources/   # Generated docs (do not hand-edit; regenerate with tfplugindocs)
 examples/         # Example .tf files referenced by docs
 ```
@@ -44,6 +52,40 @@ The client types in `internal/client/client.go` are hand-maintained duplicates o
 2. Create `internal/provider/<name>_resource.go` following the pattern of existing resources.
 3. Register the new resource in `internal/provider/provider.go` → `Resources()`.
 4. Add an example under `examples/resources/nullcloud_<name>/` and regenerate docs.
+5. Update `README.md` — add a row to the Resources table.
+6. Update the internal structure diagram and sync table in this `AGENTS.md`.
+7. Update `backend-nullcloud/AGENTS.md` — add the new provider files to the sync table.
+
+### Adding a data source
+
+1. Add a `Get<Name>` method to `internal/client/client.go` if not already present.
+2. Create `internal/provider/<name>_data_source.go` following the pattern of `vpc_data_source.go`.
+3. Register the new data source in `internal/provider/provider.go` → `DataSources()`.
+4. Add an example under `examples/data-sources/nullcloud_<name>/` and regenerate docs.
+5. Update `README.md` — add a row to the Data Sources table.
+6. Update the internal structure diagram in this `AGENTS.md`.
+
+### Adding an action
+
+1. Create `internal/provider/<name>_action.go` following the pattern of `instance_action.go`.
+2. Register the new action in `internal/provider/provider.go` → `Actions()`.
+3. Add an example under `examples/actions/nullcloud_<name>/` and regenerate docs.
+4. Update `README.md` — add a row to the Actions table.
+5. Update the internal structure diagram in this `AGENTS.md`.
+
+## Keeping docs current
+
+Whenever you make a structural change, update these files before closing the task:
+
+| Change | Files to update |
+|---|---|
+| New resource | `README.md` (Resources table), `AGENTS.md` internal structure + sync table, `backend-nullcloud/AGENTS.md` sync table |
+| New data source | `README.md` (Data Sources table), `AGENTS.md` internal structure |
+| New action | `README.md` (Actions table), `AGENTS.md` internal structure |
+| New field on a type | No README change needed; regenerate docs with `make docs` |
+| Renamed / removed resource, data source, or action | Same files as the corresponding "new" row — remove or rename the old entries |
+
+The goal: a reader of either `README.md` or `AGENTS.md` should be able to understand the current state of the provider without reading the code.
 
 ## Resource schema conventions
 

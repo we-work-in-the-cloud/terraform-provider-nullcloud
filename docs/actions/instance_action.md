@@ -1,0 +1,55 @@
+---
+page_title: "nullcloud_instance_action Action - nullcloud"
+subcategory: ""
+description: |-
+  Performs a start, stop, or restart action on a NullCloud virtual server instance.
+---
+
+# nullcloud_instance_action (Action)
+
+Performs a start, stop, or restart action on a NullCloud virtual server instance.
+
+Actions are invoked explicitly via `terraform plan -invoke=action.nullcloud_instance_action.<name>` or bound to resource lifecycle events using `action_trigger` blocks.
+
+## Example Usage
+
+### Explicit invocation
+
+```terraform
+action "nullcloud_instance_action" "stop" {
+  config {
+    instance_id = nullcloud_instance.example.id
+    action      = "stop"
+  }
+}
+```
+
+### Bound to resource lifecycle
+
+```terraform
+resource "nullcloud_instance" "example" {
+  name      = "my-vm"
+  subnet_id = nullcloud_subnet.example.id
+
+  lifecycle {
+    action_trigger {
+      events  = [after_create]
+      actions = [action.nullcloud_instance_action.stop]
+    }
+  }
+}
+
+action "nullcloud_instance_action" "stop" {
+  config {
+    instance_id = nullcloud_instance.example.id
+    action      = "stop"
+  }
+}
+```
+
+## Schema
+
+### Required
+
+- `action` (String) The action to perform: `start`, `stop`, or `restart`.
+- `instance_id` (String) The ID of the instance to act on.
