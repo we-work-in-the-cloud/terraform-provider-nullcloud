@@ -28,6 +28,7 @@ type instanceModel struct {
 	Profile   types.String `tfsdk:"profile"`
 	Image     types.String `tfsdk:"image"`
 	Status    types.String `tfsdk:"status"`
+	CRN       types.String `tfsdk:"crn"`
 	VPCID     types.String `tfsdk:"vpc_id"`
 	PrimaryIP types.String `tfsdk:"primary_ip"`
 	CreatedAt types.String `tfsdk:"created_at"`
@@ -76,6 +77,12 @@ func (r *InstanceResource) Schema(_ context.Context, _ resource.SchemaRequest, r
 				},
 			},
 			"status": schema.StringAttribute{
+				Computed: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"crn": schema.StringAttribute{
 				Computed: true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
@@ -130,6 +137,7 @@ func (r *InstanceResource) Create(ctx context.Context, req resource.CreateReques
 
 	data.ID = types.StringValue(inst.ID)
 	data.Status = types.StringValue(inst.Status)
+	data.CRN = types.StringValue(inst.CRN)
 	data.VPCID = types.StringValue(inst.VPCID)
 	data.PrimaryIP = types.StringValue(inst.PrimaryIP)
 	data.Profile = types.StringValue(inst.Profile)
@@ -160,6 +168,7 @@ func (r *InstanceResource) Read(ctx context.Context, req resource.ReadRequest, r
 	data.SubnetID = types.StringValue(inst.SubnetID)
 	data.VPCID = types.StringValue(inst.VPCID)
 	data.Status = types.StringValue(inst.Status)
+	data.CRN = types.StringValue(inst.CRN)
 	data.Profile = types.StringValue(inst.Profile)
 	data.Image = types.StringValue(inst.Image)
 	data.PrimaryIP = types.StringValue(inst.PrimaryIP)

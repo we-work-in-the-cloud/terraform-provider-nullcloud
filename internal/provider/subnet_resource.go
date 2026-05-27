@@ -26,6 +26,7 @@ type subnetModel struct {
 	Name      types.String `tfsdk:"name"`
 	VPCID     types.String `tfsdk:"vpc_id"`
 	Status    types.String `tfsdk:"status"`
+	CRN       types.String `tfsdk:"crn"`
 	CIDRBlock types.String `tfsdk:"cidr_block"`
 	CreatedAt types.String `tfsdk:"created_at"`
 }
@@ -57,6 +58,12 @@ func (r *SubnetResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 				},
 			},
 			"status": schema.StringAttribute{
+				Computed: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"crn": schema.StringAttribute{
 				Computed: true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
@@ -100,6 +107,7 @@ func (r *SubnetResource) Create(ctx context.Context, req resource.CreateRequest,
 
 	data.ID = types.StringValue(sub.ID)
 	data.Status = types.StringValue(sub.Status)
+	data.CRN = types.StringValue(sub.CRN)
 	data.CIDRBlock = types.StringValue(sub.CIDRBlock)
 	data.CreatedAt = types.StringValue(sub.CreatedAt.String())
 
@@ -126,6 +134,7 @@ func (r *SubnetResource) Read(ctx context.Context, req resource.ReadRequest, res
 	data.Name = types.StringValue(sub.Name)
 	data.VPCID = types.StringValue(sub.VPCID)
 	data.Status = types.StringValue(sub.Status)
+	data.CRN = types.StringValue(sub.CRN)
 	data.CIDRBlock = types.StringValue(sub.CIDRBlock)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
