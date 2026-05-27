@@ -2,6 +2,8 @@
 
 Terraform provider for [NullCloud](https://registry.terraform.io/providers/we-work-in-the-cloud/nullcloud).
 
+> **Running the backend?** This provider talks to [backend-nullcloud](https://github.com/we-work-in-the-cloud/backend-nullcloud), a local fake-cloud API server. Start it before running Terraform.
+
 ## Resources
 
 | Resource | Description |
