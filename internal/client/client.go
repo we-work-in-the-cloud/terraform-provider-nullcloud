@@ -53,6 +53,46 @@ type Instance struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
+type LoadBalancer struct {
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	Status    string    `json:"status"`
+	CRN       string    `json:"crn"`
+	Protocol  string    `json:"protocol"`
+	Port      int       `json:"port"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+type Bucket struct {
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	Status    string    `json:"status"`
+	CRN       string    `json:"crn"`
+	Region    string    `json:"region"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+type Database struct {
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	Status    string    `json:"status"`
+	CRN       string    `json:"crn"`
+	Engine    string    `json:"engine"`
+	Version   string    `json:"version"`
+	Plan      string    `json:"plan"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+type KubernetesCluster struct {
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	Status    string    `json:"status"`
+	CRN       string    `json:"crn"`
+	Version   string    `json:"version"`
+	NodeCount int       `json:"node_count"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
 type apiErr struct {
 	Errors []struct {
 		Code    string `json:"code"`
@@ -206,6 +246,146 @@ func (c *Client) InstanceAction(id, action string) (*Instance, error) {
 
 func (c *Client) DeleteInstance(id string) error {
 	status, err := c.do("DELETE", "/v1/instances/"+id, nil, nil)
+	if err != nil && status != 404 {
+		return err
+	}
+	return nil
+}
+
+// LoadBalancer
+
+func (c *Client) CreateLoadBalancer(name, protocol string, port int) (*LoadBalancer, error) {
+	body := map[string]any{
+		"name":     name,
+		"protocol": protocol,
+		"port":     port,
+	}
+	var lb LoadBalancer
+	if _, err := c.do("POST", "/v1/loadbalancers", body, &lb); err != nil {
+		return nil, err
+	}
+	return &lb, nil
+}
+
+func (c *Client) GetLoadBalancer(id string) (*LoadBalancer, bool, error) {
+	var lb LoadBalancer
+	status, err := c.do("GET", "/v1/loadbalancers/"+id, nil, &lb)
+	if err != nil {
+		if status == 404 {
+			return nil, false, nil
+		}
+		return nil, false, err
+	}
+	return &lb, true, nil
+}
+
+func (c *Client) DeleteLoadBalancer(id string) error {
+	status, err := c.do("DELETE", "/v1/loadbalancers/"+id, nil, nil)
+	if err != nil && status != 404 {
+		return err
+	}
+	return nil
+}
+
+// Bucket
+
+func (c *Client) CreateBucket(name, region string) (*Bucket, error) {
+	body := map[string]any{
+		"name":   name,
+		"region": region,
+	}
+	var b Bucket
+	if _, err := c.do("POST", "/v1/buckets", body, &b); err != nil {
+		return nil, err
+	}
+	return &b, nil
+}
+
+func (c *Client) GetBucket(id string) (*Bucket, bool, error) {
+	var b Bucket
+	status, err := c.do("GET", "/v1/buckets/"+id, nil, &b)
+	if err != nil {
+		if status == 404 {
+			return nil, false, nil
+		}
+		return nil, false, err
+	}
+	return &b, true, nil
+}
+
+func (c *Client) DeleteBucket(id string) error {
+	status, err := c.do("DELETE", "/v1/buckets/"+id, nil, nil)
+	if err != nil && status != 404 {
+		return err
+	}
+	return nil
+}
+
+// Database
+
+func (c *Client) CreateDatabase(name, engine, version, plan string) (*Database, error) {
+	body := map[string]any{
+		"name":    name,
+		"engine":  engine,
+		"version": version,
+		"plan":    plan,
+	}
+	var db Database
+	if _, err := c.do("POST", "/v1/databases", body, &db); err != nil {
+		return nil, err
+	}
+	return &db, nil
+}
+
+func (c *Client) GetDatabase(id string) (*Database, bool, error) {
+	var db Database
+	status, err := c.do("GET", "/v1/databases/"+id, nil, &db)
+	if err != nil {
+		if status == 404 {
+			return nil, false, nil
+		}
+		return nil, false, err
+	}
+	return &db, true, nil
+}
+
+func (c *Client) DeleteDatabase(id string) error {
+	status, err := c.do("DELETE", "/v1/databases/"+id, nil, nil)
+	if err != nil && status != 404 {
+		return err
+	}
+	return nil
+}
+
+// KubernetesCluster
+
+func (c *Client) CreateKubernetesCluster(name, version string, nodeCount int) (*KubernetesCluster, error) {
+	body := map[string]any{
+		"name":       name,
+		"version":    version,
+		"node_count": nodeCount,
+	}
+	var cluster KubernetesCluster
+	if _, err := c.do("POST", "/v1/clusters", body, &cluster); err != nil {
+		return nil, err
+	}
+	return &cluster, nil
+}
+
+func (c *Client) GetKubernetesCluster(id string) (*KubernetesCluster, bool, error) {
+	var cluster KubernetesCluster
+	status, err := c.do("GET", "/v1/clusters/"+id, nil, &cluster)
+	if err != nil {
+		if status == 404 {
+			return nil, false, nil
+		}
+		return nil, false, err
+	}
+	return &cluster, true, nil
+}
+
+func (c *Client) DeleteKubernetesCluster(id string) error {
+	status, err := c.do("DELETE", "/v1/clusters/"+id, nil, nil)
 	if err != nil && status != 404 {
 		return err
 	}

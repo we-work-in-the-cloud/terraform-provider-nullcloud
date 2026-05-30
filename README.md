@@ -11,6 +11,10 @@ Terraform provider for [NullCloud](https://registry.terraform.io/providers/we-wo
 | `nullcloud_vpc` | Virtual private cloud |
 | `nullcloud_subnet` | Subnet within a VPC |
 | `nullcloud_instance` | Virtual server instance |
+| `nullcloud_loadbalancer` | Load balancer (tcp/http/https) |
+| `nullcloud_bucket` | Object storage bucket |
+| `nullcloud_database` | Managed database (postgres/mysql/mariadb) |
+| `nullcloud_cluster` | Kubernetes cluster |
 
 ## Data Sources
 
@@ -19,6 +23,10 @@ Terraform provider for [NullCloud](https://registry.terraform.io/providers/we-wo
 | `nullcloud_vpc` | Fetch a VPC by ID |
 | `nullcloud_subnet` | Fetch a subnet by ID |
 | `nullcloud_instance` | Fetch a virtual server instance by ID |
+| `nullcloud_loadbalancer` | Fetch a load balancer by ID |
+| `nullcloud_bucket` | Fetch an object storage bucket by ID |
+| `nullcloud_database` | Fetch a managed database by ID |
+| `nullcloud_cluster` | Fetch a Kubernetes cluster by ID |
 
 ## Actions
 

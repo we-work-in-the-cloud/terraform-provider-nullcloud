@@ -63,6 +63,10 @@ func (p *NullCloudProvider) Resources(_ context.Context) []func() resource.Resou
 		NewVPCResource,
 		NewSubnetResource,
 		NewInstanceResource,
+		NewLoadBalancerResource,
+		NewBucketResource,
+		NewDatabaseResource,
+		NewKubernetesClusterResource,
 	}
 }
 
@@ -71,6 +75,10 @@ func (p *NullCloudProvider) DataSources(_ context.Context) []func() datasource.D
 		NewVPCDataSource,
 		NewSubnetDataSource,
 		NewInstanceDataSource,
+		NewLoadBalancerDataSource,
+		NewBucketDataSource,
+		NewDatabaseDataSource,
+		NewKubernetesClusterDataSource,
 	}
 }
 

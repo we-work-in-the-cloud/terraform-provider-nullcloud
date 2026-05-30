@@ -26,7 +26,7 @@ LOCAL_ARCH := $(if $(filter arm64 aarch64,$(ARCH_RAW)),arm64,amd64)
 INSTALL_DIR := \
 	$(HOME)/.terraform.d/plugins/$(REGISTRY)/$(NAMESPACE)/$(PROVIDER_NAME)/$(VERSION)/$(LOCAL_OS)_$(LOCAL_ARCH)
 
-.PHONY: default fmt lint test testacc build install clean FORCE
+.PHONY: default fmt lint test testacc build install docs clean FORCE
 
 fmt:
 	gofmt -s -w -e .
@@ -39,6 +39,10 @@ test:
 
 testacc:
 	TF_ACC=1 go test -v -cover -timeout=120m ./...
+
+## docs: Regenerate docs/ from schema descriptions and examples/
+docs:
+	cd tools && go generate ./...
 
 ## build: Cross-compile for all platforms into dist/
 build: $(addprefix build-,$(PLATFORMS))
