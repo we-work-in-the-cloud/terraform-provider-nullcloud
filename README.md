@@ -1,5 +1,7 @@
 # NullCloud - Terraform provider
 
+![CI](https://github.com/we-work-in-the-cloud/terraform-provider-nullcloud/actions/workflows/release.yml/badge.svg) ![GitHub release](https://img.shields.io/github/v/release/we-work-in-the-cloud/terraform-provider-nullcloud) ![Go version](https://img.shields.io/github/go-mod/go-version/we-work-in-the-cloud/terraform-provider-nullcloud) ![License](https://img.shields.io/github/license/we-work-in-the-cloud/terraform-provider-nullcloud) [![Terraform Registry](https://img.shields.io/badge/Terraform%20Registry-nullcloud-7B42BC?logo=terraform)](https://registry.terraform.io/providers/we-work-in-the-cloud/nullcloud)
+
 Terraform provider for [NullCloud](https://registry.terraform.io/providers/we-work-in-the-cloud/nullcloud).
 
 > **Running the backend?** This provider talks to [backend-nullcloud](https://github.com/we-work-in-the-cloud/backend-nullcloud), a local fake-cloud API server. Start it before running Terraform.
