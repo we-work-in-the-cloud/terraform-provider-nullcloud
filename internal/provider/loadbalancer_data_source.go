@@ -41,6 +41,16 @@ func (d *LoadBalancerDataSource) Schema(_ context.Context, _ datasource.SchemaRe
 			"port": schema.Int64Attribute{
 				Computed: true,
 			},
+			"targets": schema.ListNestedAttribute{
+				Computed:    true,
+				Description: "List of targets (cluster or vsi) this load balancer routes traffic to.",
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"type": schema.StringAttribute{Computed: true},
+						"id":   schema.StringAttribute{Computed: true},
+					},
+				},
+			},
 			"status": schema.StringAttribute{
 				Computed: true,
 			},
@@ -83,6 +93,7 @@ func (d *LoadBalancerDataSource) Read(ctx context.Context, req datasource.ReadRe
 	data.CRN = types.StringValue(lb.CRN)
 	data.Protocol = types.StringValue(lb.Protocol)
 	data.Port = types.Int64Value(int64(lb.Port))
+	data.Targets = lbTargetsList(lb.Targets)
 	data.CreatedAt = types.StringValue(lb.CreatedAt.String())
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)

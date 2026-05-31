@@ -41,6 +41,10 @@ func (d *KubernetesClusterDataSource) Schema(_ context.Context, _ datasource.Sch
 			"node_count": schema.Int64Attribute{
 				Computed: true,
 			},
+			"subnet_ids": schema.ListAttribute{
+				ElementType: types.StringType,
+				Computed:    true,
+			},
 			"status": schema.StringAttribute{
 				Computed: true,
 			},
@@ -83,6 +87,7 @@ func (d *KubernetesClusterDataSource) Read(ctx context.Context, req datasource.R
 	data.NodeCount = types.Int64Value(int64(cluster.NodeCount))
 	data.Status = types.StringValue(cluster.Status)
 	data.CRN = types.StringValue(cluster.CRN)
+	data.SubnetIDs = stringsToList(cluster.SubnetIDs)
 	data.CreatedAt = types.StringValue(cluster.CreatedAt.String())
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)

@@ -32,4 +32,5 @@ data "nullcloud_cluster" "example" {
 - `name` (String)
 - `node_count` (Number)
 - `status` (String)
+- `subnet_ids` (List of String)
 - `version` (String)

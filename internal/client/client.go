@@ -53,14 +53,20 @@ type Instance struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
+type LoadBalancerTarget struct {
+	Type string `json:"type"`
+	ID   string `json:"id"`
+}
+
 type LoadBalancer struct {
-	ID        string    `json:"id"`
-	Name      string    `json:"name"`
-	Status    string    `json:"status"`
-	CRN       string    `json:"crn"`
-	Protocol  string    `json:"protocol"`
-	Port      int       `json:"port"`
-	CreatedAt time.Time `json:"created_at"`
+	ID        string               `json:"id"`
+	Name      string               `json:"name"`
+	Status    string               `json:"status"`
+	CRN       string               `json:"crn"`
+	Protocol  string               `json:"protocol"`
+	Port      int                  `json:"port"`
+	Targets   []LoadBalancerTarget `json:"targets"`
+	CreatedAt time.Time            `json:"created_at"`
 }
 
 type Bucket struct {
@@ -80,6 +86,7 @@ type Database struct {
 	Engine    string    `json:"engine"`
 	Version   string    `json:"version"`
 	Plan      string    `json:"plan"`
+	SubnetIDs []string  `json:"subnet_ids"`
 	CreatedAt time.Time `json:"created_at"`
 }
 
@@ -90,6 +97,7 @@ type KubernetesCluster struct {
 	CRN       string    `json:"crn"`
 	Version   string    `json:"version"`
 	NodeCount int       `json:"node_count"`
+	SubnetIDs []string  `json:"subnet_ids"`
 	CreatedAt time.Time `json:"created_at"`
 }
 
@@ -254,11 +262,12 @@ func (c *Client) DeleteInstance(id string) error {
 
 // LoadBalancer
 
-func (c *Client) CreateLoadBalancer(name, protocol string, port int) (*LoadBalancer, error) {
+func (c *Client) CreateLoadBalancer(name, protocol string, port int, targets []LoadBalancerTarget) (*LoadBalancer, error) {
 	body := map[string]any{
 		"name":     name,
 		"protocol": protocol,
 		"port":     port,
+		"targets":  targets,
 	}
 	var lb LoadBalancer
 	if _, err := c.do("POST", "/v1/loadbalancers", body, &lb); err != nil {
@@ -323,12 +332,13 @@ func (c *Client) DeleteBucket(id string) error {
 
 // Database
 
-func (c *Client) CreateDatabase(name, engine, version, plan string) (*Database, error) {
+func (c *Client) CreateDatabase(name, engine, version, plan string, subnetIDs []string) (*Database, error) {
 	body := map[string]any{
-		"name":    name,
-		"engine":  engine,
-		"version": version,
-		"plan":    plan,
+		"name":       name,
+		"engine":     engine,
+		"version":    version,
+		"plan":       plan,
+		"subnet_ids": subnetIDs,
 	}
 	var db Database
 	if _, err := c.do("POST", "/v1/databases", body, &db); err != nil {
@@ -359,11 +369,12 @@ func (c *Client) DeleteDatabase(id string) error {
 
 // KubernetesCluster
 
-func (c *Client) CreateKubernetesCluster(name, version string, nodeCount int) (*KubernetesCluster, error) {
+func (c *Client) CreateKubernetesCluster(name, version string, nodeCount int, subnetIDs []string) (*KubernetesCluster, error) {
 	body := map[string]any{
 		"name":       name,
 		"version":    version,
 		"node_count": nodeCount,
+		"subnet_ids": subnetIDs,
 	}
 	var cluster KubernetesCluster
 	if _, err := c.do("POST", "/v1/clusters", body, &cluster); err != nil {

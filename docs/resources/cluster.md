@@ -17,6 +17,7 @@ resource "nullcloud_cluster" "example" {
   name       = "my-cluster"
   version    = "1.30"
   node_count = 3
+  subnet_ids = [nullcloud_subnet.main.id]
 }
 ```
 
@@ -27,6 +28,7 @@ resource "nullcloud_cluster" "example" {
 
 - `name` (String) Name of the Kubernetes cluster.
 - `node_count` (Number) Number of worker nodes (minimum 1).
+- `subnet_ids` (List of String) List of subnet IDs where cluster nodes will be deployed.
 - `version` (String) Kubernetes version (e.g. 1.30).
 
 ### Read-Only

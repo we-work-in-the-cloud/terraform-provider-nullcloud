@@ -32,6 +32,13 @@ resource "nullcloud_loadbalancer" "main" {
   name     = "my-lb"
   protocol = "https"
   port     = 443
+
+  targets = [
+    {
+      type = "vsi"
+      id   = nullcloud_instance.main.id
+    }
+  ]
 }
 
 resource "nullcloud_bucket" "main" {
@@ -40,16 +47,18 @@ resource "nullcloud_bucket" "main" {
 }
 
 resource "nullcloud_database" "main" {
-  name    = "my-db"
-  engine  = "postgres"
-  version = "15"
-  plan    = "medium"
+  name       = "my-db"
+  engine     = "postgres"
+  version    = "15"
+  plan       = "medium"
+  subnet_ids = [nullcloud_subnet.main.id]
 }
 
 resource "nullcloud_cluster" "main" {
   name       = "my-cluster"
   version    = "1.30"
   node_count = 3
+  subnet_ids = [nullcloud_subnet.main.id]
 }
 
 action "nullcloud_instance_action" "stop" {

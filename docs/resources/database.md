@@ -14,10 +14,11 @@ Manages a NullCloud managed database.
 
 ```terraform
 resource "nullcloud_database" "example" {
-  name    = "my-db"
-  engine  = "postgres"
-  version = "15"
-  plan    = "medium"
+  name       = "my-db"
+  engine     = "postgres"
+  version    = "15"
+  plan       = "medium"
+  subnet_ids = [nullcloud_subnet.main.id]
 }
 ```
 
@@ -29,6 +30,7 @@ resource "nullcloud_database" "example" {
 - `engine` (String) Database engine. Must be postgres, mysql, or mariadb.
 - `name` (String) Name of the database instance.
 - `plan` (String) Instance plan size. Must be small, medium, or large.
+- `subnet_ids` (List of String) List of subnet IDs where the database nodes will be deployed.
 - `version` (String) Version of the database engine (e.g. 15, 8.0).
 
 ### Read-Only

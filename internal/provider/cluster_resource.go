@@ -3,9 +3,11 @@ package provider
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -29,6 +31,7 @@ type kubernetesClusterModel struct {
 	CRN       types.String `tfsdk:"crn"`
 	Version   types.String `tfsdk:"version"`
 	NodeCount types.Int64  `tfsdk:"node_count"`
+	SubnetIDs types.List   `tfsdk:"subnet_ids"`
 	CreatedAt types.String `tfsdk:"created_at"`
 }
 
@@ -67,6 +70,14 @@ func (r *KubernetesClusterResource) Schema(_ context.Context, _ resource.SchemaR
 					int64planmodifier.RequiresReplace(),
 				},
 			},
+			"subnet_ids": schema.ListAttribute{
+				ElementType: types.StringType,
+				Required:    true,
+				Description: "List of subnet IDs where cluster nodes will be deployed.",
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.RequiresReplace(),
+				},
+			},
 			"status": schema.StringAttribute{
 				Computed: true,
 				PlanModifiers: []planmodifier.String{
@@ -103,10 +114,17 @@ func (r *KubernetesClusterResource) Create(ctx context.Context, req resource.Cre
 		return
 	}
 
+	var subnetIDs []string
+	resp.Diagnostics.Append(data.SubnetIDs.ElementsAs(ctx, &subnetIDs, false)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	cluster, err := r.client.CreateKubernetesCluster(
 		data.Name.ValueString(),
 		data.Version.ValueString(),
 		int(data.NodeCount.ValueInt64()),
+		subnetIDs,
 	)
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating Kubernetes cluster", err.Error())
@@ -116,6 +134,7 @@ func (r *KubernetesClusterResource) Create(ctx context.Context, req resource.Cre
 	data.ID = types.StringValue(cluster.ID)
 	data.Status = types.StringValue(cluster.Status)
 	data.CRN = types.StringValue(cluster.CRN)
+	data.SubnetIDs = stringsToList(cluster.SubnetIDs)
 	data.CreatedAt = types.StringValue(cluster.CreatedAt.String())
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -143,6 +162,7 @@ func (r *KubernetesClusterResource) Read(ctx context.Context, req resource.ReadR
 	data.NodeCount = types.Int64Value(int64(cluster.NodeCount))
 	data.Status = types.StringValue(cluster.Status)
 	data.CRN = types.StringValue(cluster.CRN)
+	data.SubnetIDs = stringsToList(cluster.SubnetIDs)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
@@ -161,4 +181,14 @@ func (r *KubernetesClusterResource) Delete(ctx context.Context, req resource.Del
 	if err := r.client.DeleteKubernetesCluster(data.ID.ValueString()); err != nil {
 		resp.Diagnostics.AddError("Error deleting Kubernetes cluster", err.Error())
 	}
+}
+
+// stringsToList converts a []string to a types.List of string elements.
+func stringsToList(ss []string) types.List {
+	elems := make([]attr.Value, len(ss))
+	for i, s := range ss {
+		elems[i] = types.StringValue(s)
+	}
+	result, _ := types.ListValue(types.StringType, elems)
+	return result
 }

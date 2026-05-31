@@ -3,9 +3,11 @@ package provider
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -13,6 +15,12 @@ import (
 )
 
 var _ resource.Resource = &LoadBalancerResource{}
+
+// lbTargetAttrTypes defines the object shape for a load balancer target.
+var lbTargetAttrTypes = map[string]attr.Type{
+	"type": types.StringType,
+	"id":   types.StringType,
+}
 
 type LoadBalancerResource struct {
 	client *client.Client
@@ -22,6 +30,11 @@ func NewLoadBalancerResource() resource.Resource {
 	return &LoadBalancerResource{}
 }
 
+type loadBalancerTargetModel struct {
+	Type types.String `tfsdk:"type"`
+	ID   types.String `tfsdk:"id"`
+}
+
 type loadBalancerModel struct {
 	ID        types.String `tfsdk:"id"`
 	Name      types.String `tfsdk:"name"`
@@ -29,6 +42,7 @@ type loadBalancerModel struct {
 	CRN       types.String `tfsdk:"crn"`
 	Protocol  types.String `tfsdk:"protocol"`
 	Port      types.Int64  `tfsdk:"port"`
+	Targets   types.List   `tfsdk:"targets"`
 	CreatedAt types.String `tfsdk:"created_at"`
 }
 
@@ -67,6 +81,25 @@ func (r *LoadBalancerResource) Schema(_ context.Context, _ resource.SchemaReques
 					int64planmodifier.RequiresReplace(),
 				},
 			},
+			"targets": schema.ListNestedAttribute{
+				Optional:    true,
+				Description: "List of targets (cluster or vsi) to route traffic to.",
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.RequiresReplace(),
+				},
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"type": schema.StringAttribute{
+							Required:    true,
+							Description: "Target type. Must be cluster or vsi.",
+						},
+						"id": schema.StringAttribute{
+							Required:    true,
+							Description: "ID of the target resource.",
+						},
+					},
+				},
+			},
 			"status": schema.StringAttribute{
 				Computed: true,
 				PlanModifiers: []planmodifier.String{
@@ -103,10 +136,24 @@ func (r *LoadBalancerResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
+	var targets []client.LoadBalancerTarget
+	if !data.Targets.IsNull() {
+		var targetModels []loadBalancerTargetModel
+		resp.Diagnostics.Append(data.Targets.ElementsAs(ctx, &targetModels, false)...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		targets = make([]client.LoadBalancerTarget, len(targetModels))
+		for i, t := range targetModels {
+			targets[i] = client.LoadBalancerTarget{Type: t.Type.ValueString(), ID: t.ID.ValueString()}
+		}
+	}
+
 	lb, err := r.client.CreateLoadBalancer(
 		data.Name.ValueString(),
 		data.Protocol.ValueString(),
 		int(data.Port.ValueInt64()),
+		targets,
 	)
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating load balancer", err.Error())
@@ -116,6 +163,7 @@ func (r *LoadBalancerResource) Create(ctx context.Context, req resource.CreateRe
 	data.ID = types.StringValue(lb.ID)
 	data.Status = types.StringValue(lb.Status)
 	data.CRN = types.StringValue(lb.CRN)
+	data.Targets = lbTargetsList(lb.Targets)
 	data.CreatedAt = types.StringValue(lb.CreatedAt.String())
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -143,6 +191,7 @@ func (r *LoadBalancerResource) Read(ctx context.Context, req resource.ReadReques
 	data.CRN = types.StringValue(lb.CRN)
 	data.Protocol = types.StringValue(lb.Protocol)
 	data.Port = types.Int64Value(int64(lb.Port))
+	data.Targets = lbTargetsList(lb.Targets)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
@@ -161,4 +210,22 @@ func (r *LoadBalancerResource) Delete(ctx context.Context, req resource.DeleteRe
 	if err := r.client.DeleteLoadBalancer(data.ID.ValueString()); err != nil {
 		resp.Diagnostics.AddError("Error deleting load balancer", err.Error())
 	}
+}
+
+// lbTargetsList converts API targets to a types.List. Returns null list when targets is nil/empty.
+func lbTargetsList(targets []client.LoadBalancerTarget) types.List {
+	objType := types.ObjectType{AttrTypes: lbTargetAttrTypes}
+	if len(targets) == 0 {
+		return types.ListNull(objType)
+	}
+	elems := make([]attr.Value, len(targets))
+	for i, t := range targets {
+		obj, _ := types.ObjectValue(lbTargetAttrTypes, map[string]attr.Value{
+			"type": types.StringValue(t.Type),
+			"id":   types.StringValue(t.ID),
+		})
+		elems[i] = obj
+	}
+	result, _ := types.ListValue(objType, elems)
+	return result
 }

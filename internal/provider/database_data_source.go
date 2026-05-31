@@ -44,6 +44,10 @@ func (d *DatabaseDataSource) Schema(_ context.Context, _ datasource.SchemaReques
 			"plan": schema.StringAttribute{
 				Computed: true,
 			},
+			"subnet_ids": schema.ListAttribute{
+				ElementType: types.StringType,
+				Computed:    true,
+			},
 			"status": schema.StringAttribute{
 				Computed: true,
 			},
@@ -87,6 +91,7 @@ func (d *DatabaseDataSource) Read(ctx context.Context, req datasource.ReadReques
 	data.Plan = types.StringValue(db.Plan)
 	data.Status = types.StringValue(db.Status)
 	data.CRN = types.StringValue(db.CRN)
+	data.SubnetIDs = stringsToList(db.SubnetIDs)
 	data.CreatedAt = types.StringValue(db.CreatedAt.String())
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)

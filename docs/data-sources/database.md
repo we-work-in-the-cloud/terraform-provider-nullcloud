@@ -33,4 +33,5 @@ data "nullcloud_database" "example" {
 - `name` (String)
 - `plan` (String)
 - `status` (String)
+- `subnet_ids` (List of String)
 - `version` (String)

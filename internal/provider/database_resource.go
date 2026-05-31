@@ -5,6 +5,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -29,6 +30,7 @@ type databaseModel struct {
 	Engine    types.String `tfsdk:"engine"`
 	Version   types.String `tfsdk:"version"`
 	Plan      types.String `tfsdk:"plan"`
+	SubnetIDs types.List   `tfsdk:"subnet_ids"`
 	CreatedAt types.String `tfsdk:"created_at"`
 }
 
@@ -74,6 +76,14 @@ func (r *DatabaseResource) Schema(_ context.Context, _ resource.SchemaRequest, r
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
+			"subnet_ids": schema.ListAttribute{
+				ElementType: types.StringType,
+				Required:    true,
+				Description: "List of subnet IDs where the database nodes will be deployed.",
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.RequiresReplace(),
+				},
+			},
 			"status": schema.StringAttribute{
 				Computed: true,
 				PlanModifiers: []planmodifier.String{
@@ -110,11 +120,18 @@ func (r *DatabaseResource) Create(ctx context.Context, req resource.CreateReques
 		return
 	}
 
+	var subnetIDs []string
+	resp.Diagnostics.Append(data.SubnetIDs.ElementsAs(ctx, &subnetIDs, false)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	db, err := r.client.CreateDatabase(
 		data.Name.ValueString(),
 		data.Engine.ValueString(),
 		data.Version.ValueString(),
 		data.Plan.ValueString(),
+		subnetIDs,
 	)
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating database", err.Error())
@@ -124,6 +141,7 @@ func (r *DatabaseResource) Create(ctx context.Context, req resource.CreateReques
 	data.ID = types.StringValue(db.ID)
 	data.Status = types.StringValue(db.Status)
 	data.CRN = types.StringValue(db.CRN)
+	data.SubnetIDs = stringsToList(db.SubnetIDs)
 	data.CreatedAt = types.StringValue(db.CreatedAt.String())
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -152,6 +170,7 @@ func (r *DatabaseResource) Read(ctx context.Context, req resource.ReadRequest, r
 	data.Plan = types.StringValue(db.Plan)
 	data.Status = types.StringValue(db.Status)
 	data.CRN = types.StringValue(db.CRN)
+	data.SubnetIDs = stringsToList(db.SubnetIDs)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }

@@ -17,6 +17,13 @@ resource "nullcloud_loadbalancer" "example" {
   name     = "my-lb"
   protocol = "https"
   port     = 443
+
+  targets = [
+    {
+      type = "cluster"
+      id   = nullcloud_cluster.example.id
+    }
+  ]
 }
 ```
 
@@ -28,6 +35,12 @@ resource "nullcloud_loadbalancer" "example" {
 - `name` (String) Name of the load balancer.
 - `port` (Number) Port the load balancer listens on (1-65535).
 - `protocol` (String) Protocol for the load balancer. Must be tcp, http, or https.
+
+### Optional
+
+- `targets` (List of Object) List of targets (cluster or vsi) to route traffic to. Each object has:
+  - `type` (String) Target type. Must be `cluster` or `vsi`.
+  - `id` (String) ID of the target resource.
 
 ### Read-Only
 

@@ -33,3 +33,4 @@ data "nullcloud_loadbalancer" "example" {
 - `port` (Number)
 - `protocol` (String)
 - `status` (String)
+- `targets` (List of Object) List of targets this load balancer routes to. Each object has `type` (String) and `id` (String).
