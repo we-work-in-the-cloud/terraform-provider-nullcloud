@@ -9,6 +9,8 @@ description: |-
 
 The NullCloud provider manages VPCs, subnets, and virtual server instances on NullCloud.
 
+The NullCloud backend is required to use this provider. See the [backend repository](https://github.com/we-work-in-the-cloud/backend-nullcloud) for installation instructions.
+
 ## Example Usage
 
 ```terraform
