@@ -22,8 +22,9 @@ func New() provider.Provider {
 }
 
 type providerModel struct {
-	URL   types.String `tfsdk:"url"`
-	Token types.String `tfsdk:"token"`
+	URL    types.String `tfsdk:"url"`
+	Token  types.String `tfsdk:"token"`
+	Region types.String `tfsdk:"region"`
 }
 
 func (p *NullCloudProvider) Metadata(_ context.Context, _ provider.MetadataRequest, resp *provider.MetadataResponse) {
@@ -42,6 +43,10 @@ func (p *NullCloudProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 				Sensitive:   true,
 				Description: "Authorization token",
 			},
+			"region": schema.StringAttribute{
+				Optional:    true,
+				Description: "Default region for all resources. Defaults to us-east if not set.",
+			},
 		},
 	}
 }
@@ -53,6 +58,9 @@ func (p *NullCloudProvider) Configure(ctx context.Context, req provider.Configur
 		return
 	}
 	c := client.New(config.URL.ValueString(), config.Token.ValueString())
+	if r := config.Region.ValueString(); r != "" {
+		c.DefaultRegion = r
+	}
 	resp.DataSourceData = c
 	resp.ResourceData = c
 	resp.ActionData = c
@@ -79,6 +87,7 @@ func (p *NullCloudProvider) DataSources(_ context.Context) []func() datasource.D
 		NewBucketDataSource,
 		NewDatabaseDataSource,
 		NewKubernetesClusterDataSource,
+		NewRegionsDataSource,
 	}
 }
 

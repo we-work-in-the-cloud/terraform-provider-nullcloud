@@ -35,6 +35,9 @@ func (d *VPCDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, re
 			"name": schema.StringAttribute{
 				Computed: true,
 			},
+			"region": schema.StringAttribute{
+				Computed: true,
+			},
 			"status": schema.StringAttribute{
 				Computed: true,
 			},
@@ -73,6 +76,7 @@ func (d *VPCDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 	}
 
 	data.Name = types.StringValue(vpc.Name)
+	data.Region = types.StringValue(vpc.Region)
 	data.Status = types.StringValue(vpc.Status)
 	data.CRN = types.StringValue(vpc.CRN)
 	data.CreatedAt = types.StringValue(vpc.CreatedAt.String())

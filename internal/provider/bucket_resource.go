@@ -54,7 +54,7 @@ func (r *BucketResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 			"region": schema.StringAttribute{
 				Optional:    true,
 				Computed:    true,
-				Description: "Region where the bucket is created. Defaults to us-east-1.",
+				Description: "Region where the bucket is created. Defaults to the provider region (us-east).",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 					stringplanmodifier.UseStateForUnknown(),
@@ -98,7 +98,7 @@ func (r *BucketResource) Create(ctx context.Context, req resource.CreateRequest,
 
 	region := data.Region.ValueString()
 	if region == "" {
-		region = "us-east-1"
+		region = r.client.DefaultRegion
 	}
 
 	b, err := r.client.CreateBucket(data.Name.ValueString(), region)

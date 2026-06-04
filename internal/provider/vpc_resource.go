@@ -26,6 +26,7 @@ type vpcModel struct {
 	Name      types.String `tfsdk:"name"`
 	Status    types.String `tfsdk:"status"`
 	CRN       types.String `tfsdk:"crn"`
+	Region    types.String `tfsdk:"region"`
 	CreatedAt types.String `tfsdk:"created_at"`
 }
 
@@ -47,6 +48,15 @@ func (r *VPCResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *
 				Required: true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
+				},
+			},
+			"region": schema.StringAttribute{
+				Optional:    true,
+				Computed:    true,
+				Description: "Region where the VPC is created. Defaults to the provider region (us-east).",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"status": schema.StringAttribute{
@@ -85,13 +95,19 @@ func (r *VPCResource) Create(ctx context.Context, req resource.CreateRequest, re
 		return
 	}
 
-	vpc, err := r.client.CreateVPC(data.Name.ValueString())
+	region := data.Region.ValueString()
+	if region == "" {
+		region = r.client.DefaultRegion
+	}
+
+	vpc, err := r.client.CreateVPC(data.Name.ValueString(), region)
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating VPC", err.Error())
 		return
 	}
 
 	data.ID = types.StringValue(vpc.ID)
+	data.Region = types.StringValue(vpc.Region)
 	data.Status = types.StringValue(vpc.Status)
 	data.CRN = types.StringValue(vpc.CRN)
 	data.CreatedAt = types.StringValue(vpc.CreatedAt.String())
@@ -117,6 +133,7 @@ func (r *VPCResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 	}
 
 	data.Name = types.StringValue(vpc.Name)
+	data.Region = types.StringValue(vpc.Region)
 	data.Status = types.StringValue(vpc.Status)
 	data.CRN = types.StringValue(vpc.CRN)
 

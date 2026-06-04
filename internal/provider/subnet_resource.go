@@ -25,6 +25,7 @@ type subnetModel struct {
 	ID        types.String `tfsdk:"id"`
 	Name      types.String `tfsdk:"name"`
 	VPCID     types.String `tfsdk:"vpc_id"`
+	Zone      types.String `tfsdk:"zone"`
 	Status    types.String `tfsdk:"status"`
 	CRN       types.String `tfsdk:"crn"`
 	CIDRBlock types.String `tfsdk:"cidr_block"`
@@ -53,6 +54,13 @@ func (r *SubnetResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 			},
 			"vpc_id": schema.StringAttribute{
 				Required: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
+			},
+			"zone": schema.StringAttribute{
+				Required:    true,
+				Description: "Availability zone for the subnet (e.g. us-east-1). Must be a zone within the VPC's region.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
@@ -99,13 +107,14 @@ func (r *SubnetResource) Create(ctx context.Context, req resource.CreateRequest,
 		return
 	}
 
-	sub, err := r.client.CreateSubnet(data.Name.ValueString(), data.VPCID.ValueString())
+	sub, err := r.client.CreateSubnet(data.Name.ValueString(), data.VPCID.ValueString(), data.Zone.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating Subnet", err.Error())
 		return
 	}
 
 	data.ID = types.StringValue(sub.ID)
+	data.Zone = types.StringValue(sub.Zone)
 	data.Status = types.StringValue(sub.Status)
 	data.CRN = types.StringValue(sub.CRN)
 	data.CIDRBlock = types.StringValue(sub.CIDRBlock)
@@ -133,6 +142,7 @@ func (r *SubnetResource) Read(ctx context.Context, req resource.ReadRequest, res
 
 	data.Name = types.StringValue(sub.Name)
 	data.VPCID = types.StringValue(sub.VPCID)
+	data.Zone = types.StringValue(sub.Zone)
 	data.Status = types.StringValue(sub.Status)
 	data.CRN = types.StringValue(sub.CRN)
 	data.CIDRBlock = types.StringValue(sub.CIDRBlock)

@@ -15,7 +15,7 @@ func makeVPC(id, name string) client.VPC {
 }
 
 func makeSubnet(id, name, vpcID string) client.Subnet {
-	return client.Subnet{ID: id, Name: name, Status: "available", VPCID: vpcID, CIDRBlock: "10.0.0.0/24", CreatedAt: time.Now()}
+	return client.Subnet{ID: id, Name: name, Status: "available", VPCID: vpcID, Zone: "us-east-1", CIDRBlock: "10.0.0.0/24", CreatedAt: time.Now()}
 }
 
 func makeInstance(id, name, subnetID string) client.Instance {
@@ -27,7 +27,7 @@ func makeLB(id, name string) client.LoadBalancer {
 }
 
 func makeBucket(id, name string) client.Bucket {
-	return client.Bucket{ID: id, Name: name, Status: "available", CRN: "crn:bkt:" + id, Region: "us-east-1", CreatedAt: time.Now()}
+	return client.Bucket{ID: id, Name: name, Status: "available", CRN: "crn:bkt:" + id, Region: "us-east", CreatedAt: time.Now()}
 }
 
 func makeDatabase(id, name string) client.Database {
@@ -66,7 +66,7 @@ func TestClient_CreateVPC(t *testing.T) {
 	defer srv.Close()
 
 	c := client.New(srv.URL, "tok")
-	vpc, err := c.CreateVPC("my-vpc")
+	vpc, err := c.CreateVPC("my-vpc", "us-east")
 	if err != nil || vpc.ID != "vpc-1" {
 		t.Fatalf("unexpected: %v %v", vpc, err)
 	}
@@ -149,13 +149,16 @@ func TestClient_CreateSubnet(t *testing.T) {
 		if vpc["id"] != "vpc-1" {
 			t.Errorf("expected vpc_id vpc-1, got %v", vpc["id"])
 		}
+		if body["zone"] != "us-east-1" {
+			t.Errorf("expected zone us-east-1, got %v", body["zone"])
+		}
 		w.WriteHeader(201)
 		json.NewEncoder(w).Encode(makeSubnet("sub-1", "my-subnet", "vpc-1"))
 	}))
 	defer srv.Close()
 
 	c := client.New(srv.URL, "tok")
-	sub, err := c.CreateSubnet("my-subnet", "vpc-1")
+	sub, err := c.CreateSubnet("my-subnet", "vpc-1", "us-east-1")
 	if err != nil || sub.ID != "sub-1" || sub.VPCID != "vpc-1" {
 		t.Fatalf("unexpected: %v %v", sub, err)
 	}
@@ -488,19 +491,19 @@ func TestClient_CreateBucket(t *testing.T) {
 		}
 		var body map[string]any
 		json.NewDecoder(r.Body).Decode(&body)
-		if body["name"] != "my-bucket" || body["region"] != "eu-west-1" {
+		if body["name"] != "my-bucket" || body["region"] != "eu-west" {
 			t.Errorf("unexpected body: %v", body)
 		}
 		bkt := makeBucket("bkt-1", "my-bucket")
-		bkt.Region = "eu-west-1"
+		bkt.Region = "eu-west"
 		w.WriteHeader(201)
 		json.NewEncoder(w).Encode(bkt)
 	}))
 	defer srv.Close()
 
 	c := client.New(srv.URL, "tok")
-	bkt, err := c.CreateBucket("my-bucket", "eu-west-1")
-	if err != nil || bkt.ID != "bkt-1" || bkt.Region != "eu-west-1" {
+	bkt, err := c.CreateBucket("my-bucket", "eu-west")
+	if err != nil || bkt.ID != "bkt-1" || bkt.Region != "eu-west" {
 		t.Fatalf("unexpected: %v %v", bkt, err)
 	}
 }
@@ -512,7 +515,7 @@ func TestClient_CreateBucket_Error(t *testing.T) {
 	defer srv.Close()
 
 	c := client.New(srv.URL, "tok")
-	_, err := c.CreateBucket("bucket", "us-east-1")
+	_, err := c.CreateBucket("bucket", "us-east")
 	if err == nil {
 		t.Fatal("expected error")
 	}
@@ -820,7 +823,7 @@ func TestClient_ErrorResponse(t *testing.T) {
 	defer srv.Close()
 
 	c := client.New(srv.URL, "tok")
-	_, err := c.CreateVPC("x")
+	_, err := c.CreateVPC("x", "us-east")
 	if err == nil {
 		t.Fatal("expected error")
 	}
@@ -833,7 +836,7 @@ func TestClient_ErrorResponse_NoBody(t *testing.T) {
 	defer srv.Close()
 
 	c := client.New(srv.URL, "tok")
-	_, err := c.CreateVPC("x")
+	_, err := c.CreateVPC("x", "us-east")
 	if err == nil {
 		t.Fatal("expected error")
 	}

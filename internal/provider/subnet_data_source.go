@@ -38,6 +38,9 @@ func (d *SubnetDataSource) Schema(_ context.Context, _ datasource.SchemaRequest,
 			"vpc_id": schema.StringAttribute{
 				Computed: true,
 			},
+			"zone": schema.StringAttribute{
+				Computed: true,
+			},
 			"status": schema.StringAttribute{
 				Computed: true,
 			},
@@ -80,6 +83,7 @@ func (d *SubnetDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 
 	data.Name = types.StringValue(sub.Name)
 	data.VPCID = types.StringValue(sub.VPCID)
+	data.Zone = types.StringValue(sub.Zone)
 	data.Status = types.StringValue(sub.Status)
 	data.CRN = types.StringValue(sub.CRN)
 	data.CIDRBlock = types.StringValue(sub.CIDRBlock)

@@ -9,16 +9,18 @@ import (
 )
 
 type Client struct {
-	baseURL    string
-	token      string
-	httpClient *http.Client
+	baseURL       string
+	token         string
+	httpClient    *http.Client
+	DefaultRegion string
 }
 
 func New(baseURL, token string) *Client {
 	return &Client{
-		baseURL:    baseURL,
-		token:      token,
-		httpClient: &http.Client{Timeout: 30 * time.Second},
+		baseURL:       baseURL,
+		token:         token,
+		httpClient:    &http.Client{Timeout: 30 * time.Second},
+		DefaultRegion: "us-east",
 	}
 }
 
@@ -27,6 +29,7 @@ type VPC struct {
 	Name      string    `json:"name"`
 	Status    string    `json:"status"`
 	CRN       string    `json:"crn"`
+	Region    string    `json:"region"`
 	CreatedAt time.Time `json:"created_at"`
 }
 
@@ -36,6 +39,7 @@ type Subnet struct {
 	Status    string    `json:"status"`
 	CRN       string    `json:"crn"`
 	VPCID     string    `json:"vpc_id"`
+	Zone      string    `json:"zone"`
 	CIDRBlock string    `json:"cidr_block"`
 	CreatedAt time.Time `json:"created_at"`
 }
@@ -101,6 +105,15 @@ type KubernetesCluster struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
+type RegionZone struct {
+	Name string `json:"name"`
+}
+
+type Region struct {
+	Name  string       `json:"name"`
+	Zones []RegionZone `json:"zones"`
+}
+
 type apiErr struct {
 	Errors []struct {
 		Code    string `json:"code"`
@@ -152,11 +165,23 @@ func (c *Client) do(method, path string, body, result any) (int, error) {
 	return resp.StatusCode, nil
 }
 
+// Regions
+
+func (c *Client) ListRegions() ([]Region, error) {
+	var result struct {
+		Regions []Region `json:"regions"`
+	}
+	if _, err := c.do("GET", "/v1/regions", nil, &result); err != nil {
+		return nil, err
+	}
+	return result.Regions, nil
+}
+
 // VPC
 
-func (c *Client) CreateVPC(name string) (*VPC, error) {
+func (c *Client) CreateVPC(name, region string) (*VPC, error) {
 	var vpc VPC
-	if _, err := c.do("POST", "/v1/vpcs", map[string]string{"name": name}, &vpc); err != nil {
+	if _, err := c.do("POST", "/v1/vpcs", map[string]string{"name": name, "region": region}, &vpc); err != nil {
 		return nil, err
 	}
 	return &vpc, nil
@@ -184,10 +209,11 @@ func (c *Client) DeleteVPC(id string) error {
 
 // Subnet
 
-func (c *Client) CreateSubnet(name, vpcID string) (*Subnet, error) {
+func (c *Client) CreateSubnet(name, vpcID, zone string) (*Subnet, error) {
 	body := map[string]any{
 		"name": name,
 		"vpc":  map[string]string{"id": vpcID},
+		"zone": zone,
 	}
 	var sub Subnet
 	if _, err := c.do("POST", "/v1/subnets", body, &sub); err != nil {
