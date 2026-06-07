@@ -1,6 +1,6 @@
 # NullCloud - Terraform provider
 
-![CI](https://github.com/we-work-in-the-cloud/terraform-provider-nullcloud/actions/workflows/release.yml/badge.svg) ![GitHub release](https://img.shields.io/github/v/release/we-work-in-the-cloud/terraform-provider-nullcloud) ![Go version](https://img.shields.io/github/go-mod/go-version/we-work-in-the-cloud/terraform-provider-nullcloud) ![License](https://img.shields.io/github/license/we-work-in-the-cloud/terraform-provider-nullcloud) [![Terraform Registry](https://img.shields.io/badge/Terraform%20Registry-nullcloud-7B42BC?logo=terraform)](https://registry.terraform.io/providers/we-work-in-the-cloud/nullcloud)
+![CI](https://github.com/we-work-in-the-cloud/terraform-provider-nullcloud/actions/workflows/release.yml/badge.svg) ![GitHub release](https://img.shields.io/github/v/release/we-work-in-the-cloud/terraform-provider-nullcloud) ![Go version](https://img.shields.io/github/go-mod/go-version/we-work-in-the-cloud/terraform-provider-nullcloud) ![License](https://img.shields.io/github/license/we-work-in-the-cloud/terraform-provider-nullcloud) [![Terraform Registry](https://img.shields.io/badge/Terraform%20Registry-nullcloud-7B42BC?logo=terraform)](https://registry.terraform.io/providers/we-work-in-the-cloud/nullcloud) ![Made with AI](https://img.shields.io/badge/made%20with%20AI%20-yes-green)
 
 Terraform provider for [NullCloud](https://registry.terraform.io/providers/we-work-in-the-cloud/nullcloud).
 
@@ -29,6 +29,7 @@ Terraform provider for [NullCloud](https://registry.terraform.io/providers/we-wo
 | `nullcloud_bucket` | Fetch an object storage bucket by ID |
 | `nullcloud_database` | Fetch a managed database by ID |
 | `nullcloud_cluster` | Fetch a Kubernetes cluster by ID |
+| `nullcloud_regions` | Fetch available regions and zones |
 
 ## Actions
 
@@ -75,6 +76,7 @@ resource "nullcloud_instance" "main" {
 |---|---|---|
 | `url` | yes | NullCloud backend URL |
 | `token` | yes | Authorization token |
+| `region` | no | Default region for all resources (defaults to `us-east`) |
 
 ## Development
 
