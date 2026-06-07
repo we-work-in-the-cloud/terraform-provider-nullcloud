@@ -26,6 +26,7 @@ resource "nullcloud_subnet" "example" {
 
 - `name` (String)
 - `vpc_id` (String)
+- `zone` (String) Availability zone for the subnet (e.g. us-east-1). Must be a zone within the VPC's region.
 
 ### Read-Only
 

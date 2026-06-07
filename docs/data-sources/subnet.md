@@ -33,3 +33,4 @@ data "nullcloud_subnet" "example" {
 - `name` (String)
 - `status` (String)
 - `vpc_id` (String)
+- `zone` (String)

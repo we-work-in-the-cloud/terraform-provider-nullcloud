@@ -30,4 +30,5 @@ data "nullcloud_vpc" "example" {
 - `created_at` (String)
 - `crn` (String)
 - `name` (String)
+- `region` (String)
 - `status` (String)

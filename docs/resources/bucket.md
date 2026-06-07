@@ -28,7 +28,7 @@ resource "nullcloud_bucket" "example" {
 
 ### Optional
 
-- `region` (String) Region where the bucket is created. Defaults to us-east-1.
+- `region` (String) Region where the bucket is created. Defaults to the provider region (us-east).
 
 ### Read-Only
 

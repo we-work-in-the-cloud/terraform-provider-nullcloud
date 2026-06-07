@@ -38,9 +38,7 @@ resource "nullcloud_loadbalancer" "example" {
 
 ### Optional
 
-- `targets` (List of Object) List of targets (cluster or vsi) to route traffic to. Each object has:
-  - `type` (String) Target type. Must be `cluster` or `vsi`.
-  - `id` (String) ID of the target resource.
+- `targets` (Attributes List) List of targets (cluster or vsi) to route traffic to. (see [below for nested schema](#nestedatt--targets))
 
 ### Read-Only
 
@@ -48,3 +46,11 @@ resource "nullcloud_loadbalancer" "example" {
 - `crn` (String)
 - `id` (String) The ID of this resource.
 - `status` (String)
+
+<a id="nestedatt--targets"></a>
+### Nested Schema for `targets`
+
+Required:
+
+- `id` (String) ID of the target resource.
+- `type` (String) Target type. Must be cluster or vsi.

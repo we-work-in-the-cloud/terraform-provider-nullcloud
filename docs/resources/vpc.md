@@ -25,6 +25,10 @@ resource "nullcloud_vpc" "example" {
 
 - `name` (String)
 
+### Optional
+
+- `region` (String) Region where the VPC is created. Defaults to the provider region (us-east).
+
 ### Read-Only
 
 - `created_at` (String)

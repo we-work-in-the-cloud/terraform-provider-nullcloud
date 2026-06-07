@@ -26,7 +26,7 @@ func (a *InstanceAction) Metadata(_ context.Context, req action.MetadataRequest,
 
 func (a *InstanceAction) Schema(_ context.Context, _ action.SchemaRequest, resp *action.SchemaResponse) {
 	resp.Schema = actionschema.Schema{
-		Description: "Performs a start, stop, or restart action on a NullCloud virtual server instance.",
+		Description: "Performs a start, stop, or restart action on a NullCloud virtual server instance.\n\nActions are invoked explicitly via `terraform plan -invoke=action.nullcloud_instance_action.<name>` or bound to resource lifecycle events using `action_trigger` blocks.",
 		Attributes: map[string]actionschema.Attribute{
 			"instance_id": actionschema.StringAttribute{
 				Required:    true,

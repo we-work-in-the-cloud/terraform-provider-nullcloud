@@ -4,6 +4,7 @@ page_title: "nullcloud_instance_action Action - terraform-provider-nullcloud"
 subcategory: ""
 description: |-
   Performs a start, stop, or restart action on a NullCloud virtual server instance.
+  Actions are invoked explicitly via terraform plan -invoke=action.nullcloud_instance_action.<name> or bound to resource lifecycle events using action_trigger blocks.
 ---
 
 # nullcloud_instance_action (Action)
