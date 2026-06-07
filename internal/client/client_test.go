@@ -19,7 +19,7 @@ func makeSubnet(id, name, vpcID string) client.Subnet {
 }
 
 func makeInstance(id, name, subnetID string) client.Instance {
-	return client.Instance{ID: id, Name: name, Status: "running", SubnetID: subnetID, VPCID: "vpc-1", PrimaryIP: "10.0.0.2", CreatedAt: time.Now()}
+	return client.Instance{ID: id, Name: name, Status: "running", SubnetID: subnetID, PrimaryIP: "10.0.0.2", CreatedAt: time.Now()}
 }
 
 func makeLB(id, name string) client.LoadBalancer {

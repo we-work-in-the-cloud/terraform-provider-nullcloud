@@ -35,4 +35,3 @@ data "nullcloud_instance" "example" {
 - `profile` (String)
 - `status` (String)
 - `subnet_id` (String)
-- `vpc_id` (String)

@@ -50,7 +50,6 @@ type Instance struct {
 	Status    string    `json:"status"`
 	CRN       string    `json:"crn"`
 	SubnetID  string    `json:"subnet_id"`
-	VPCID     string    `json:"vpc_id"`
 	Profile   string    `json:"profile"`
 	Image     string    `json:"image"`
 	PrimaryIP string    `json:"primary_ip"`

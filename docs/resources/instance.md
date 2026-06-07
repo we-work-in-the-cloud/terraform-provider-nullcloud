@@ -41,4 +41,3 @@ resource "nullcloud_instance" "example" {
 - `id` (String) The ID of this resource.
 - `primary_ip` (String)
 - `status` (String)
-- `vpc_id` (String)

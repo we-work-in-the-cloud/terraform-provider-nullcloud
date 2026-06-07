@@ -50,9 +50,6 @@ func (d *InstanceDataSource) Schema(_ context.Context, _ datasource.SchemaReques
 			"crn": schema.StringAttribute{
 				Computed: true,
 			},
-			"vpc_id": schema.StringAttribute{
-				Computed: true,
-			},
 			"primary_ip": schema.StringAttribute{
 				Computed: true,
 			},
@@ -93,7 +90,6 @@ func (d *InstanceDataSource) Read(ctx context.Context, req datasource.ReadReques
 	data.Image = types.StringValue(inst.Image)
 	data.Status = types.StringValue(inst.Status)
 	data.CRN = types.StringValue(inst.CRN)
-	data.VPCID = types.StringValue(inst.VPCID)
 	data.PrimaryIP = types.StringValue(inst.PrimaryIP)
 	data.CreatedAt = types.StringValue(inst.CreatedAt.String())
 
