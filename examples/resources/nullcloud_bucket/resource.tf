@@ -1,4 +1,4 @@
 resource "nullcloud_bucket" "example" {
   name   = "my-bucket"
-  region = "us-east-1"
+  region = "us-east"
 }

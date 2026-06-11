@@ -78,9 +78,9 @@ func (r *SubnetResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 				},
 			},
 			"cidr_block": schema.StringAttribute{
-				Computed: true,
+				Required: true,
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
+					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"created_at": schema.StringAttribute{
@@ -107,7 +107,7 @@ func (r *SubnetResource) Create(ctx context.Context, req resource.CreateRequest,
 		return
 	}
 
-	sub, err := r.client.CreateSubnet(data.Name.ValueString(), data.VPCID.ValueString(), data.Zone.ValueString())
+	sub, err := r.client.CreateSubnet(data.Name.ValueString(), data.VPCID.ValueString(), data.Zone.ValueString(), data.CIDRBlock.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating Subnet", err.Error())
 		return

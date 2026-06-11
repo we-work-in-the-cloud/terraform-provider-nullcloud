@@ -152,13 +152,16 @@ func TestClient_CreateSubnet(t *testing.T) {
 		if body["zone"] != "us-east-1" {
 			t.Errorf("expected zone us-east-1, got %v", body["zone"])
 		}
+		if body["cidr_block"] != "10.0.0.0/24" {
+			t.Errorf("expected cidr_block 10.0.0.0/24, got %v", body["cidr_block"])
+		}
 		w.WriteHeader(201)
 		json.NewEncoder(w).Encode(makeSubnet("sub-1", "my-subnet", "vpc-1"))
 	}))
 	defer srv.Close()
 
 	c := client.New(srv.URL, "tok")
-	sub, err := c.CreateSubnet("my-subnet", "vpc-1", "us-east-1")
+	sub, err := c.CreateSubnet("my-subnet", "vpc-1", "us-east-1", "10.0.0.0/24")
 	if err != nil || sub.ID != "sub-1" || sub.VPCID != "vpc-1" {
 		t.Fatalf("unexpected: %v %v", sub, err)
 	}

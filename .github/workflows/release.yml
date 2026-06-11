@@ -24,7 +24,7 @@ jobs:
           go-version-file: go.mod
           cache: true
           cache-dependency-path: go.sum
-      - run: go test -v -cover -timeout=120s -parallel=10 ./...
+      - run: make test
 
   release:
     needs: test

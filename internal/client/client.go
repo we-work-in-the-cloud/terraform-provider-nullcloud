@@ -208,11 +208,12 @@ func (c *Client) DeleteVPC(id string) error {
 
 // Subnet
 
-func (c *Client) CreateSubnet(name, vpcID, zone string) (*Subnet, error) {
+func (c *Client) CreateSubnet(name, vpcID, zone, cidrBlock string) (*Subnet, error) {
 	body := map[string]any{
-		"name": name,
-		"vpc":  map[string]string{"id": vpcID},
-		"zone": zone,
+		"name":       name,
+		"vpc":        map[string]string{"id": vpcID},
+		"zone":       zone,
+		"cidr_block": cidrBlock,
 	}
 	var sub Subnet
 	if _, err := c.do("POST", "/v1/subnets", body, &sub); err != nil {

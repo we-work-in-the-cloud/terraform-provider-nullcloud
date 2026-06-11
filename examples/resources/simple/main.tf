@@ -17,8 +17,10 @@ resource "nullcloud_vpc" "main" {
 }
 
 resource "nullcloud_subnet" "main" {
-  name   = "my-subnet"
-  vpc_id = nullcloud_vpc.main.id
+  name       = "my-subnet"
+  vpc_id     = nullcloud_vpc.main.id
+  zone       = "us-east-1"
+  cidr_block = "10.0.0.0/24"
 }
 
 resource "nullcloud_instance" "main" {
@@ -43,7 +45,7 @@ resource "nullcloud_loadbalancer" "main" {
 
 resource "nullcloud_bucket" "main" {
   name   = "my-bucket"
-  region = "us-east-1"
+  region = "us-east"
 }
 
 resource "nullcloud_database" "main" {

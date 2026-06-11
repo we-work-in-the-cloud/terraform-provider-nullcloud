@@ -5,3 +5,4 @@ terraform.tfstate
 terraform.tfstate.backup
 coverage.out
 terraform-provider-nullcloud
+.backend-test/
