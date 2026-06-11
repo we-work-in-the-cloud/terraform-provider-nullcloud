@@ -58,5 +58,5 @@ backend-setup:
 		git clone https://github.com/we-work-in-the-cloud/backend-nullcloud $(BACKEND_DIR); \
 	fi
 	@echo "Building backend..."; \
-	cd $(BACKEND_DIR) && CGO_ENABLED=0 go build -trimpath -o nullcloud-backend .
+	cd $(BACKEND_DIR) && make build
 	@echo "Backend built successfully at $(BACKEND_DIR)/nullcloud-backend"
