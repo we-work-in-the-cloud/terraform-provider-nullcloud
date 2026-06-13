@@ -29,6 +29,7 @@ data "nullcloud_database" "example" {
 
 - `created_at` (String)
 - `crn` (String)
+- `endpoint` (String) Connection endpoint for the database (e.g., db-xxxxx.db.nullcloud.internal:5432).
 - `engine` (String)
 - `name` (String)
 - `plan` (String)

@@ -16,3 +16,9 @@ resource "nullcloud_database" "example" {
   plan       = "medium"
   subnet_ids = [nullcloud_subnet.example.id]
 }
+
+output "db_endpoint" {
+  value       = nullcloud_database.example.endpoint
+  description = "Database connection endpoint (host:port)"
+  sensitive   = true
+}

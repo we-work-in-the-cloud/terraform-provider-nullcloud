@@ -13,12 +13,29 @@ Manages a NullCloud managed database.
 ## Example Usage
 
 ```terraform
+resource "nullcloud_vpc" "example" {
+  name = "my-vpc"
+}
+
+resource "nullcloud_subnet" "example" {
+  name       = "my-subnet"
+  vpc_id     = nullcloud_vpc.example.id
+  zone       = "us-east-1"
+  cidr_block = "10.0.0.0/24"
+}
+
 resource "nullcloud_database" "example" {
   name       = "my-db"
   engine     = "postgres"
   version    = "15"
   plan       = "medium"
-  subnet_ids = [nullcloud_subnet.main.id]
+  subnet_ids = [nullcloud_subnet.example.id]
+}
+
+output "db_endpoint" {
+  value       = nullcloud_database.example.endpoint
+  description = "Database connection endpoint (host:port)"
+  sensitive   = true
 }
 ```
 
@@ -37,5 +54,6 @@ resource "nullcloud_database" "example" {
 
 - `created_at` (String)
 - `crn` (String)
+- `endpoint` (String) Connection endpoint for the database (e.g., db-xxxxx.db.nullcloud.internal:5432).
 - `id` (String) The ID of this resource.
 - `status` (String)

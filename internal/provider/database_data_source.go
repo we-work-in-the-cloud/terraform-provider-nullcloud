@@ -57,6 +57,10 @@ func (d *DatabaseDataSource) Schema(_ context.Context, _ datasource.SchemaReques
 			"created_at": schema.StringAttribute{
 				Computed: true,
 			},
+			"endpoint": schema.StringAttribute{
+				Computed:    true,
+				Description: "Connection endpoint for the database (e.g., db-xxxxx.db.nullcloud.internal:5432).",
+			},
 		},
 	}
 }
@@ -93,6 +97,7 @@ func (d *DatabaseDataSource) Read(ctx context.Context, req datasource.ReadReques
 	data.CRN = types.StringValue(db.CRN)
 	data.SubnetIDs = stringsToList(db.SubnetIDs)
 	data.CreatedAt = types.StringValue(db.CreatedAt.String())
+	data.Endpoint = types.StringValue(db.Endpoint)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }

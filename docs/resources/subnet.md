@@ -13,9 +13,15 @@ Manages a NullCloud Subnet.
 ## Example Usage
 
 ```terraform
+resource "nullcloud_vpc" "example" {
+  name = "my-vpc"
+}
+
 resource "nullcloud_subnet" "example" {
-  name   = "my-subnet"
-  vpc_id = nullcloud_vpc.example.id
+  name       = "my-subnet"
+  vpc_id     = nullcloud_vpc.example.id
+  zone       = "us-east-1"
+  cidr_block = "10.0.0.0/24"
 }
 ```
 
@@ -24,13 +30,13 @@ resource "nullcloud_subnet" "example" {
 
 ### Required
 
+- `cidr_block` (String)
 - `name` (String)
 - `vpc_id` (String)
 - `zone` (String) Availability zone for the subnet (e.g. us-east-1). Must be a zone within the VPC's region.
 
 ### Read-Only
 
-- `cidr_block` (String)
 - `created_at` (String)
 - `crn` (String)
 - `id` (String) The ID of this resource.

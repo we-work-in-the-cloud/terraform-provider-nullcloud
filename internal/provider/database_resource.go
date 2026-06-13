@@ -32,6 +32,7 @@ type databaseModel struct {
 	Plan      types.String `tfsdk:"plan"`
 	SubnetIDs types.List   `tfsdk:"subnet_ids"`
 	CreatedAt types.String `tfsdk:"created_at"`
+	Endpoint  types.String `tfsdk:"endpoint"`
 }
 
 func (r *DatabaseResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -102,6 +103,13 @@ func (r *DatabaseResource) Schema(_ context.Context, _ resource.SchemaRequest, r
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
+			"endpoint": schema.StringAttribute{
+				Computed:    true,
+				Description: "Connection endpoint for the database (e.g., db-xxxxx.db.nullcloud.internal:5432).",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
 		},
 	}
 }
@@ -143,6 +151,7 @@ func (r *DatabaseResource) Create(ctx context.Context, req resource.CreateReques
 	data.CRN = types.StringValue(db.CRN)
 	data.SubnetIDs = stringsToList(db.SubnetIDs)
 	data.CreatedAt = types.StringValue(db.CreatedAt.String())
+	data.Endpoint = types.StringValue(db.Endpoint)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
@@ -171,6 +180,7 @@ func (r *DatabaseResource) Read(ctx context.Context, req resource.ReadRequest, r
 	data.Status = types.StringValue(db.Status)
 	data.CRN = types.StringValue(db.CRN)
 	data.SubnetIDs = stringsToList(db.SubnetIDs)
+	data.Endpoint = types.StringValue(db.Endpoint)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
