@@ -2,7 +2,6 @@ package provider
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -78,7 +77,7 @@ func (d *KubernetesClusterDataSource) Read(ctx context.Context, req datasource.R
 		return
 	}
 	if !found {
-		resp.Diagnostics.AddError("Kubernetes cluster not found", fmt.Sprintf("Kubernetes cluster with ID %q not found", data.ID.ValueString()))
+		reportNotFoundDataSource(resp, "Kubernetes cluster", data.ID.ValueString())
 		return
 	}
 
@@ -87,7 +86,7 @@ func (d *KubernetesClusterDataSource) Read(ctx context.Context, req datasource.R
 	data.NodeCount = types.Int64Value(int64(cluster.NodeCount))
 	data.Status = types.StringValue(cluster.Status)
 	data.CRN = types.StringValue(cluster.CRN)
-	data.SubnetIDs = stringsToList(cluster.SubnetIDs)
+	data.SubnetIDs = listOfStrings(cluster.SubnetIDs)
 	data.CreatedAt = types.StringValue(cluster.CreatedAt.String())
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)

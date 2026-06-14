@@ -2,7 +2,6 @@ package provider
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -84,7 +83,7 @@ func (d *LoadBalancerDataSource) Read(ctx context.Context, req datasource.ReadRe
 		return
 	}
 	if !found {
-		resp.Diagnostics.AddError("Load balancer not found", fmt.Sprintf("Load balancer with ID %q not found", data.ID.ValueString()))
+		reportNotFoundDataSource(resp, "Load balancer", data.ID.ValueString())
 		return
 	}
 

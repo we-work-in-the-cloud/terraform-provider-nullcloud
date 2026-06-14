@@ -2,7 +2,6 @@ package provider
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -85,7 +84,7 @@ func (d *DatabaseDataSource) Read(ctx context.Context, req datasource.ReadReques
 		return
 	}
 	if !found {
-		resp.Diagnostics.AddError("Database not found", fmt.Sprintf("Database with ID %q not found", data.ID.ValueString()))
+		reportNotFoundDataSource(resp, "Database", data.ID.ValueString())
 		return
 	}
 
@@ -95,7 +94,7 @@ func (d *DatabaseDataSource) Read(ctx context.Context, req datasource.ReadReques
 	data.Plan = types.StringValue(db.Plan)
 	data.Status = types.StringValue(db.Status)
 	data.CRN = types.StringValue(db.CRN)
-	data.SubnetIDs = stringsToList(db.SubnetIDs)
+	data.SubnetIDs = listOfStrings(db.SubnetIDs)
 	data.CreatedAt = types.StringValue(db.CreatedAt.String())
 	data.Endpoint = types.StringValue(db.Endpoint)
 

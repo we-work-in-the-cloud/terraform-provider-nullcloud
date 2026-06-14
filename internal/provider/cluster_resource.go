@@ -3,7 +3,6 @@ package provider
 import (
 	"context"
 
-	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
@@ -22,17 +21,6 @@ type KubernetesClusterResource struct {
 
 func NewKubernetesClusterResource() resource.Resource {
 	return &KubernetesClusterResource{}
-}
-
-type kubernetesClusterModel struct {
-	ID        types.String `tfsdk:"id"`
-	Name      types.String `tfsdk:"name"`
-	Status    types.String `tfsdk:"status"`
-	CRN       types.String `tfsdk:"crn"`
-	Version   types.String `tfsdk:"version"`
-	NodeCount types.Int64  `tfsdk:"node_count"`
-	SubnetIDs types.List   `tfsdk:"subnet_ids"`
-	CreatedAt types.String `tfsdk:"created_at"`
 }
 
 func (r *KubernetesClusterResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -131,7 +119,7 @@ func (r *KubernetesClusterResource) Create(ctx context.Context, req resource.Cre
 	data.ID = types.StringValue(cluster.ID)
 	data.Status = types.StringValue(cluster.Status)
 	data.CRN = types.StringValue(cluster.CRN)
-	data.SubnetIDs = stringsToList(cluster.SubnetIDs)
+	data.SubnetIDs = listOfStrings(cluster.SubnetIDs)
 	data.CreatedAt = types.StringValue(cluster.CreatedAt.String())
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -159,7 +147,7 @@ func (r *KubernetesClusterResource) Read(ctx context.Context, req resource.ReadR
 	data.NodeCount = types.Int64Value(int64(cluster.NodeCount))
 	data.Status = types.StringValue(cluster.Status)
 	data.CRN = types.StringValue(cluster.CRN)
-	data.SubnetIDs = stringsToList(cluster.SubnetIDs)
+	data.SubnetIDs = listOfStrings(cluster.SubnetIDs)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
@@ -193,14 +181,4 @@ func (r *KubernetesClusterResource) Delete(ctx context.Context, req resource.Del
 	if err := r.client.DeleteKubernetesCluster(data.ID.ValueString()); err != nil {
 		resp.Diagnostics.AddError("Error deleting Kubernetes cluster", err.Error())
 	}
-}
-
-// stringsToList converts a []string to a types.List of string elements.
-func stringsToList(ss []string) types.List {
-	elems := make([]attr.Value, len(ss))
-	for i, s := range ss {
-		elems[i] = types.StringValue(s)
-	}
-	result, _ := types.ListValue(types.StringType, elems)
-	return result
 }

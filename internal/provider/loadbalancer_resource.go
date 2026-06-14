@@ -29,22 +29,6 @@ func NewLoadBalancerResource() resource.Resource {
 	return &LoadBalancerResource{}
 }
 
-type loadBalancerTargetModel struct {
-	Type types.String `tfsdk:"type"`
-	ID   types.String `tfsdk:"id"`
-}
-
-type loadBalancerModel struct {
-	ID        types.String `tfsdk:"id"`
-	Name      types.String `tfsdk:"name"`
-	Status    types.String `tfsdk:"status"`
-	CRN       types.String `tfsdk:"crn"`
-	Protocol  types.String `tfsdk:"protocol"`
-	Port      types.Int64  `tfsdk:"port"`
-	Targets   types.List   `tfsdk:"targets"`
-	CreatedAt types.String `tfsdk:"created_at"`
-}
-
 func (r *LoadBalancerResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_loadbalancer"
 }

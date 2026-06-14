@@ -21,18 +21,6 @@ func NewInstanceResource() resource.Resource {
 	return &InstanceResource{}
 }
 
-type instanceModel struct {
-	ID        types.String `tfsdk:"id"`
-	Name      types.String `tfsdk:"name"`
-	SubnetID  types.String `tfsdk:"subnet_id"`
-	Profile   types.String `tfsdk:"profile"`
-	Image     types.String `tfsdk:"image"`
-	Status    types.String `tfsdk:"status"`
-	CRN       types.String `tfsdk:"crn"`
-	PrimaryIP types.String `tfsdk:"primary_ip"`
-	CreatedAt types.String `tfsdk:"created_at"`
-}
-
 func (r *InstanceResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_instance"
 }

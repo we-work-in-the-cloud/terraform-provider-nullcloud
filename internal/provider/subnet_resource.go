@@ -21,17 +21,6 @@ func NewSubnetResource() resource.Resource {
 	return &SubnetResource{}
 }
 
-type subnetModel struct {
-	ID        types.String `tfsdk:"id"`
-	Name      types.String `tfsdk:"name"`
-	VPCID     types.String `tfsdk:"vpc_id"`
-	Zone      types.String `tfsdk:"zone"`
-	Status    types.String `tfsdk:"status"`
-	CRN       types.String `tfsdk:"crn"`
-	CIDRBlock types.String `tfsdk:"cidr_block"`
-	CreatedAt types.String `tfsdk:"created_at"`
-}
-
 func (r *SubnetResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_subnet"
 }

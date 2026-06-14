@@ -22,19 +22,6 @@ func NewDatabaseResource() resource.Resource {
 	return &DatabaseResource{}
 }
 
-type databaseModel struct {
-	ID        types.String `tfsdk:"id"`
-	Name      types.String `tfsdk:"name"`
-	Status    types.String `tfsdk:"status"`
-	CRN       types.String `tfsdk:"crn"`
-	Engine    types.String `tfsdk:"engine"`
-	Version   types.String `tfsdk:"version"`
-	Plan      types.String `tfsdk:"plan"`
-	SubnetIDs types.List   `tfsdk:"subnet_ids"`
-	CreatedAt types.String `tfsdk:"created_at"`
-	Endpoint  types.String `tfsdk:"endpoint"`
-}
-
 func (r *DatabaseResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_database"
 }
@@ -143,7 +130,7 @@ func (r *DatabaseResource) Create(ctx context.Context, req resource.CreateReques
 	data.ID = types.StringValue(db.ID)
 	data.Status = types.StringValue(db.Status)
 	data.CRN = types.StringValue(db.CRN)
-	data.SubnetIDs = stringsToList(db.SubnetIDs)
+	data.SubnetIDs = listOfStrings(db.SubnetIDs)
 	data.CreatedAt = types.StringValue(db.CreatedAt.String())
 	data.Endpoint = types.StringValue(db.Endpoint)
 
@@ -173,7 +160,7 @@ func (r *DatabaseResource) Read(ctx context.Context, req resource.ReadRequest, r
 	data.Plan = types.StringValue(db.Plan)
 	data.Status = types.StringValue(db.Status)
 	data.CRN = types.StringValue(db.CRN)
-	data.SubnetIDs = stringsToList(db.SubnetIDs)
+	data.SubnetIDs = listOfStrings(db.SubnetIDs)
 	data.Endpoint = types.StringValue(db.Endpoint)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)

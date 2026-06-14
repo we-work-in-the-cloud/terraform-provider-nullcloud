@@ -21,15 +21,6 @@ func NewBucketResource() resource.Resource {
 	return &BucketResource{}
 }
 
-type bucketModel struct {
-	ID        types.String `tfsdk:"id"`
-	Name      types.String `tfsdk:"name"`
-	Status    types.String `tfsdk:"status"`
-	CRN       types.String `tfsdk:"crn"`
-	Region    types.String `tfsdk:"region"`
-	CreatedAt types.String `tfsdk:"created_at"`
-}
-
 func (r *BucketResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_bucket"
 }

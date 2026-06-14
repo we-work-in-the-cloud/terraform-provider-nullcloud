@@ -2,7 +2,6 @@ package provider
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -77,7 +76,7 @@ func (d *SubnetDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		return
 	}
 	if !found {
-		resp.Diagnostics.AddError("Subnet not found", fmt.Sprintf("Subnet with ID %q not found", data.ID.ValueString()))
+		reportNotFoundDataSource(resp, "Subnet", data.ID.ValueString())
 		return
 	}
 

@@ -2,7 +2,6 @@ package provider
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -71,7 +70,7 @@ func (d *VPCDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 		return
 	}
 	if !found {
-		resp.Diagnostics.AddError("VPC not found", fmt.Sprintf("VPC with ID %q not found", data.ID.ValueString()))
+		reportNotFoundDataSource(resp, "VPC", data.ID.ValueString())
 		return
 	}
 
