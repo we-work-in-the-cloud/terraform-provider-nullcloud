@@ -4,5 +4,6 @@ dist
 terraform.tfstate
 terraform.tfstate.backup
 coverage.out
+coverage.html
 terraform-provider-nullcloud
 .backend-test/

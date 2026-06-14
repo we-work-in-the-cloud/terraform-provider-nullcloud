@@ -23,7 +23,9 @@ lint:
 
 test: backend-setup
 	@echo "Running tests..."; \
-	BACKEND_BINARY=$(abspath $(BACKEND_DIR)/nullcloud-backend) TF_ACC=1 go test -v -cover -timeout=120s -parallel=10 ./...
+	BACKEND_BINARY=$(abspath $(BACKEND_DIR)/nullcloud-backend) TF_ACC=1 go test -v -cover -coverprofile=coverage.out -timeout=120s -parallel=10 ./...
+	go tool cover -html=coverage.out -o coverage.html
+	@echo "Coverage report generated: coverage.html"
 
 testacc:
 	TF_ACC=1 go test -v -cover -timeout=120m ./...
