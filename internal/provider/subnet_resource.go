@@ -48,9 +48,6 @@ func (r *SubnetResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 			},
 			"name": schema.StringAttribute{
 				Required: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
 			},
 			"vpc_id": schema.StringAttribute{
 				Required: true,
@@ -150,8 +147,23 @@ func (r *SubnetResource) Read(ctx context.Context, req resource.ReadRequest, res
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *SubnetResource) Update(_ context.Context, _ resource.UpdateRequest, _ *resource.UpdateResponse) {
-	// All mutable attributes require replace; Update is never called.
+func (r *SubnetResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var data subnetModel
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	sub, err := r.client.UpdateSubnet(data.ID.ValueString(), data.Name.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError("Error updating Subnet", err.Error())
+		return
+	}
+
+	data.Name = types.StringValue(sub.Name)
+	data.Status = types.StringValue(sub.Status)
+
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
 func (r *SubnetResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {

@@ -52,9 +52,6 @@ func (r *DatabaseResource) Schema(_ context.Context, _ resource.SchemaRequest, r
 			"name": schema.StringAttribute{
 				Required:    true,
 				Description: "Name of the database instance.",
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
 			},
 			"engine": schema.StringAttribute{
 				Required:    true,
@@ -73,9 +70,6 @@ func (r *DatabaseResource) Schema(_ context.Context, _ resource.SchemaRequest, r
 			"plan": schema.StringAttribute{
 				Required:    true,
 				Description: "Instance plan size. Must be small, medium, or large.",
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
 			},
 			"subnet_ids": schema.ListAttribute{
 				ElementType: types.StringType,
@@ -185,8 +179,24 @@ func (r *DatabaseResource) Read(ctx context.Context, req resource.ReadRequest, r
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *DatabaseResource) Update(_ context.Context, _ resource.UpdateRequest, _ *resource.UpdateResponse) {
-	// All mutable attributes require replace; Update is never called.
+func (r *DatabaseResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var data databaseModel
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	db, err := r.client.UpdateDatabase(data.ID.ValueString(), data.Name.ValueString(), data.Plan.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError("Error updating Database", err.Error())
+		return
+	}
+
+	data.Name = types.StringValue(db.Name)
+	data.Plan = types.StringValue(db.Plan)
+	data.Status = types.StringValue(db.Status)
+
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
 func (r *DatabaseResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {

@@ -207,6 +207,14 @@ func (c *Client) DeleteVPC(id string) error {
 	return nil
 }
 
+func (c *Client) UpdateVPC(id, name string) (*VPC, error) {
+	var vpc VPC
+	if _, err := c.do("PATCH", "/v1/vpcs/"+id, map[string]string{"name": name}, &vpc); err != nil {
+		return nil, err
+	}
+	return &vpc, nil
+}
+
 // Subnet
 
 func (c *Client) CreateSubnet(name, vpcID, zone, cidrBlock string) (*Subnet, error) {
@@ -241,6 +249,14 @@ func (c *Client) DeleteSubnet(id string) error {
 		return err
 	}
 	return nil
+}
+
+func (c *Client) UpdateSubnet(id, name string) (*Subnet, error) {
+	var sub Subnet
+	if _, err := c.do("PATCH", "/v1/subnets/"+id, map[string]string{"name": name}, &sub); err != nil {
+		return nil, err
+	}
+	return &sub, nil
 }
 
 // Instance
@@ -287,6 +303,14 @@ func (c *Client) DeleteInstance(id string) error {
 	return nil
 }
 
+func (c *Client) UpdateInstance(id, name string) (*Instance, error) {
+	var inst Instance
+	if _, err := c.do("PATCH", "/v1/instances/"+id, map[string]string{"name": name}, &inst); err != nil {
+		return nil, err
+	}
+	return &inst, nil
+}
+
 // LoadBalancer
 
 func (c *Client) CreateLoadBalancer(name, protocol string, port int, targets []LoadBalancerTarget) (*LoadBalancer, error) {
@@ -323,6 +347,18 @@ func (c *Client) DeleteLoadBalancer(id string) error {
 	return nil
 }
 
+func (c *Client) UpdateLoadBalancer(id, name string, targets []LoadBalancerTarget) (*LoadBalancer, error) {
+	body := map[string]any{
+		"name":    name,
+		"targets": targets,
+	}
+	var lb LoadBalancer
+	if _, err := c.do("PATCH", "/v1/loadbalancers/"+id, body, &lb); err != nil {
+		return nil, err
+	}
+	return &lb, nil
+}
+
 // Bucket
 
 func (c *Client) CreateBucket(name, region string) (*Bucket, error) {
@@ -355,6 +391,14 @@ func (c *Client) DeleteBucket(id string) error {
 		return err
 	}
 	return nil
+}
+
+func (c *Client) UpdateBucket(id, name string) (*Bucket, error) {
+	var b Bucket
+	if _, err := c.do("PATCH", "/v1/buckets/"+id, map[string]string{"name": name}, &b); err != nil {
+		return nil, err
+	}
+	return &b, nil
 }
 
 // Database
@@ -394,6 +438,21 @@ func (c *Client) DeleteDatabase(id string) error {
 	return nil
 }
 
+func (c *Client) UpdateDatabase(id, name, plan string) (*Database, error) {
+	body := map[string]string{}
+	if name != "" {
+		body["name"] = name
+	}
+	if plan != "" {
+		body["plan"] = plan
+	}
+	var db Database
+	if _, err := c.do("PATCH", "/v1/databases/"+id, body, &db); err != nil {
+		return nil, err
+	}
+	return &db, nil
+}
+
 // KubernetesCluster
 
 func (c *Client) CreateKubernetesCluster(name, version string, nodeCount int, subnetIDs []string) (*KubernetesCluster, error) {
@@ -428,4 +487,12 @@ func (c *Client) DeleteKubernetesCluster(id string) error {
 		return err
 	}
 	return nil
+}
+
+func (c *Client) UpdateKubernetesCluster(id, name string) (*KubernetesCluster, error) {
+	var cluster KubernetesCluster
+	if _, err := c.do("PATCH", "/v1/clusters/"+id, map[string]string{"name": name}, &cluster); err != nil {
+		return nil, err
+	}
+	return &cluster, nil
 }

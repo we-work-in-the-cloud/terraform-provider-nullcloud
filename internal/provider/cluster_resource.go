@@ -52,9 +52,6 @@ func (r *KubernetesClusterResource) Schema(_ context.Context, _ resource.SchemaR
 			"name": schema.StringAttribute{
 				Required:    true,
 				Description: "Name of the Kubernetes cluster.",
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
 			},
 			"version": schema.StringAttribute{
 				Required:    true,
@@ -167,8 +164,23 @@ func (r *KubernetesClusterResource) Read(ctx context.Context, req resource.ReadR
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *KubernetesClusterResource) Update(_ context.Context, _ resource.UpdateRequest, _ *resource.UpdateResponse) {
-	// All mutable attributes require replace; Update is never called.
+func (r *KubernetesClusterResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var data kubernetesClusterModel
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	cluster, err := r.client.UpdateKubernetesCluster(data.ID.ValueString(), data.Name.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError("Error updating Kubernetes Cluster", err.Error())
+		return
+	}
+
+	data.Name = types.StringValue(cluster.Name)
+	data.Status = types.StringValue(cluster.Status)
+
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
 func (r *KubernetesClusterResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {

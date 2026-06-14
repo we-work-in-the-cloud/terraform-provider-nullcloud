@@ -47,9 +47,6 @@ func (r *BucketResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 			"name": schema.StringAttribute{
 				Required:    true,
 				Description: "Name of the bucket.",
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
 			},
 			"region": schema.StringAttribute{
 				Optional:    true,
@@ -141,8 +138,23 @@ func (r *BucketResource) Read(ctx context.Context, req resource.ReadRequest, res
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *BucketResource) Update(_ context.Context, _ resource.UpdateRequest, _ *resource.UpdateResponse) {
-	// All mutable attributes require replace; Update is never called.
+func (r *BucketResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var data bucketModel
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	b, err := r.client.UpdateBucket(data.ID.ValueString(), data.Name.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError("Error updating Bucket", err.Error())
+		return
+	}
+
+	data.Name = types.StringValue(b.Name)
+	data.Status = types.StringValue(b.Status)
+
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
 func (r *BucketResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {

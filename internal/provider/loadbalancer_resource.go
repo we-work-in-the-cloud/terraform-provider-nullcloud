@@ -7,7 +7,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -63,9 +62,6 @@ func (r *LoadBalancerResource) Schema(_ context.Context, _ resource.SchemaReques
 			"name": schema.StringAttribute{
 				Required:    true,
 				Description: "Name of the load balancer.",
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
 			},
 			"protocol": schema.StringAttribute{
 				Required:    true,
@@ -84,9 +80,6 @@ func (r *LoadBalancerResource) Schema(_ context.Context, _ resource.SchemaReques
 			"targets": schema.ListNestedAttribute{
 				Optional:    true,
 				Description: "List of targets (cluster or vsi) to route traffic to.",
-				PlanModifiers: []planmodifier.List{
-					listplanmodifier.RequiresReplace(),
-				},
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"type": schema.StringAttribute{
@@ -196,8 +189,37 @@ func (r *LoadBalancerResource) Read(ctx context.Context, req resource.ReadReques
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *LoadBalancerResource) Update(_ context.Context, _ resource.UpdateRequest, _ *resource.UpdateResponse) {
-	// All mutable attributes require replace; Update is never called.
+func (r *LoadBalancerResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var data loadBalancerModel
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	var targets []client.LoadBalancerTarget
+	if !data.Targets.IsNull() {
+		var targetModels []loadBalancerTargetModel
+		resp.Diagnostics.Append(data.Targets.ElementsAs(ctx, &targetModels, false)...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		targets = make([]client.LoadBalancerTarget, len(targetModels))
+		for i, t := range targetModels {
+			targets[i] = client.LoadBalancerTarget{Type: t.Type.ValueString(), ID: t.ID.ValueString()}
+		}
+	}
+
+	lb, err := r.client.UpdateLoadBalancer(data.ID.ValueString(), data.Name.ValueString(), targets)
+	if err != nil {
+		resp.Diagnostics.AddError("Error updating Load Balancer", err.Error())
+		return
+	}
+
+	data.Name = types.StringValue(lb.Name)
+	data.Status = types.StringValue(lb.Status)
+	data.Targets = lbTargetsList(lb.Targets)
+
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
 func (r *LoadBalancerResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
