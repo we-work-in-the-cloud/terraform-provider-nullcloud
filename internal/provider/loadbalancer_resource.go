@@ -4,7 +4,9 @@ import (
 	"context"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/resource/identityschema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -14,6 +16,7 @@ import (
 )
 
 var _ resource.Resource = &LoadBalancerResource{}
+var _ resource.ResourceWithImportState = &LoadBalancerResource{}
 
 // lbTargetAttrTypes defines the object shape for a load balancer target.
 var lbTargetAttrTypes = map[string]attr.Type{
@@ -99,6 +102,20 @@ func (r *LoadBalancerResource) Schema(_ context.Context, _ resource.SchemaReques
 	}
 }
 
+func (r *LoadBalancerResource) IdentitySchema(_ context.Context, _ resource.IdentitySchemaRequest, resp *resource.IdentitySchemaResponse) {
+	resp.IdentitySchema = identityschema.Schema{
+		Attributes: map[string]identityschema.Attribute{
+			"id": identityschema.StringAttribute{
+				RequiredForImport: true,
+			},
+		},
+	}
+}
+
+func (r *LoadBalancerResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	resource.ImportStatePassthroughWithIdentity(ctx, path.Root("id"), path.Root("id"), req, resp)
+}
+
 func (r *LoadBalancerResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
@@ -144,6 +161,7 @@ func (r *LoadBalancerResource) Create(ctx context.Context, req resource.CreateRe
 	data.CreatedAt = types.StringValue(lb.CreatedAt.String())
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+	resp.Diagnostics.Append(resp.Identity.SetAttribute(ctx, path.Root("id"), data.ID)...)
 }
 
 func (r *LoadBalancerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -171,6 +189,7 @@ func (r *LoadBalancerResource) Read(ctx context.Context, req resource.ReadReques
 	data.Targets = lbTargetsList(lb.Targets)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+	resp.Diagnostics.Append(resp.Identity.SetAttribute(ctx, path.Root("id"), data.ID)...)
 }
 
 func (r *LoadBalancerResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
@@ -204,6 +223,7 @@ func (r *LoadBalancerResource) Update(ctx context.Context, req resource.UpdateRe
 	data.Targets = lbTargetsList(lb.Targets)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+	resp.Diagnostics.Append(resp.Identity.SetAttribute(ctx, path.Root("id"), data.ID)...)
 }
 
 func (r *LoadBalancerResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {

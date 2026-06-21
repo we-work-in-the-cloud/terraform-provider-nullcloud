@@ -5,6 +5,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/action"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
+	"github.com/hashicorp/terraform-plugin-framework/list"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -14,6 +15,7 @@ import (
 
 var _ provider.Provider = &NullCloudProvider{}
 var _ provider.ProviderWithActions = &NullCloudProvider{}
+var _ provider.ProviderWithListResources = &NullCloudProvider{}
 
 type NullCloudProvider struct{}
 
@@ -64,6 +66,7 @@ func (p *NullCloudProvider) Configure(ctx context.Context, req provider.Configur
 	resp.DataSourceData = c
 	resp.ResourceData = c
 	resp.ActionData = c
+	resp.ListResourceData = c
 }
 
 func (p *NullCloudProvider) Resources(_ context.Context) []func() resource.Resource {
@@ -94,5 +97,17 @@ func (p *NullCloudProvider) DataSources(_ context.Context) []func() datasource.D
 func (p *NullCloudProvider) Actions(_ context.Context) []func() action.Action {
 	return []func() action.Action{
 		NewInstanceAction,
+	}
+}
+
+func (p *NullCloudProvider) ListResources(_ context.Context) []func() list.ListResource {
+	return []func() list.ListResource{
+		NewVPCListResource,
+		NewSubnetListResource,
+		NewInstanceListResource,
+		NewLoadBalancerListResource,
+		NewBucketListResource,
+		NewDatabaseListResource,
+		NewKubernetesClusterListResource,
 	}
 }

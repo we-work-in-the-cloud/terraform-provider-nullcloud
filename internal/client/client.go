@@ -496,3 +496,75 @@ func (c *Client) UpdateKubernetesCluster(id, name string) (*KubernetesCluster, e
 	}
 	return &cluster, nil
 }
+
+// List methods
+
+func (c *Client) ListVPCs() ([]VPC, error) {
+	var result struct {
+		VPCs []VPC `json:"vpcs"`
+	}
+	if _, err := c.do("GET", "/v1/vpcs", nil, &result); err != nil {
+		return nil, err
+	}
+	return result.VPCs, nil
+}
+
+func (c *Client) ListSubnets() ([]Subnet, error) {
+	var result struct {
+		Subnets []Subnet `json:"subnets"`
+	}
+	if _, err := c.do("GET", "/v1/subnets", nil, &result); err != nil {
+		return nil, err
+	}
+	return result.Subnets, nil
+}
+
+func (c *Client) ListInstances() ([]Instance, error) {
+	var result struct {
+		Instances []Instance `json:"instances"`
+	}
+	if _, err := c.do("GET", "/v1/instances", nil, &result); err != nil {
+		return nil, err
+	}
+	return result.Instances, nil
+}
+
+func (c *Client) ListLoadBalancers() ([]LoadBalancer, error) {
+	var result struct {
+		LoadBalancers []LoadBalancer `json:"load_balancers"`
+	}
+	if _, err := c.do("GET", "/v1/loadbalancers", nil, &result); err != nil {
+		return nil, err
+	}
+	return result.LoadBalancers, nil
+}
+
+func (c *Client) ListBuckets() ([]Bucket, error) {
+	var result struct {
+		Buckets []Bucket `json:"buckets"`
+	}
+	if _, err := c.do("GET", "/v1/buckets", nil, &result); err != nil {
+		return nil, err
+	}
+	return result.Buckets, nil
+}
+
+func (c *Client) ListDatabases() ([]Database, error) {
+	var result struct {
+		Databases []Database `json:"databases"`
+	}
+	if _, err := c.do("GET", "/v1/databases", nil, &result); err != nil {
+		return nil, err
+	}
+	return result.Databases, nil
+}
+
+func (c *Client) ListKubernetesClusters() ([]KubernetesCluster, error) {
+	var result struct {
+		Clusters []KubernetesCluster `json:"clusters"`
+	}
+	if _, err := c.do("GET", "/v1/clusters", nil, &result); err != nil {
+		return nil, err
+	}
+	return result.Clusters, nil
+}
