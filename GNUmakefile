@@ -3,7 +3,7 @@ default: fmt lint test build
 PROVIDER_NAME    := nullcloud
 NAMESPACE        := we-work-in-the-cloud
 REGISTRY         := registry.terraform.io
-VERSION          := 0.5.0
+VERSION          := 0.6.0
 BINARY_VERSIONED := terraform-provider-$(PROVIDER_NAME)_v$(VERSION)
 
 OS_NAME  := $(shell uname -s | tr '[:upper:]' '[:lower:]')
