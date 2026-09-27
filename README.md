@@ -31,11 +31,40 @@ Terraform provider for [NullCloud](https://registry.terraform.io/providers/we-wo
 | `nullcloud_cluster` | Fetch a Kubernetes cluster by ID |
 | `nullcloud_regions` | Fetch available regions and zones |
 
+## List Resources
+
+List resources discover existing infrastructure with `terraform query` instead of requiring a known resource ID. They require Terraform 1.9 or later and can be used in `.tfquery.hcl` query files.
+
+| List Resource | Optional Filters |
+|---|---|
+| `nullcloud_vpc` | `region` |
+| `nullcloud_subnet` | `vpc_id`, `zone` |
+| `nullcloud_instance` | `subnet_id`, `status` |
+| `nullcloud_loadbalancer` | `protocol` |
+| `nullcloud_bucket` | `region` |
+| `nullcloud_database` | `engine` |
+| `nullcloud_cluster` | `version` |
+
+```hcl
+list "nullcloud_vpc" "regional" {
+  provider = nullcloud
+  config {
+    region = "us-east"
+  }
+}
+```
+
+Run the query with `terraform query`. See [list-resource examples](examples/list-resources/) for filters and result attributes.
+
 ## Actions
 
 | Action | Description |
 |---|---|
 | `nullcloud_instance_action` | Perform a `start`, `stop`, or `restart` on an instance |
+
+## Resource Lifecycle
+
+All seven resources can be imported by ID. Names can be changed in place; databases also support in-place plan changes, and load balancers support in-place target changes. Changes to other immutable resource attributes replace the resource.
 
 ## Usage
 
