@@ -4,12 +4,15 @@ page_title: "nullcloud_instance_action Action - terraform-provider-nullcloud"
 subcategory: ""
 description: |-
   Performs a start, stop, or restart action on a NullCloud virtual server instance.
+  The action reports the resulting instance status as progress output. Terraform actions cannot update resource state or return values to Terraform configuration, so existing resource outputs may remain stale until a subsequent refresh.
   Actions are invoked explicitly via terraform plan -invoke=action.nullcloud_instance_action.<name> or bound to resource lifecycle events using action_trigger blocks.
 ---
 
 # nullcloud_instance_action (Action)
 
 Performs a start, stop, or restart action on a NullCloud virtual server instance.
+
+The action reports the resulting instance status as progress output. Terraform actions cannot update resource state or return values to Terraform configuration, so existing resource outputs may remain stale until a subsequent refresh.
 
 Actions are invoked explicitly via `terraform plan -invoke=action.nullcloud_instance_action.<name>` or bound to resource lifecycle events using `action_trigger` blocks.
 
