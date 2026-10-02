@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-framework/action"
 	actionschema "github.com/hashicorp/terraform-plugin-framework/action/schema"
@@ -26,7 +27,7 @@ func (a *InstanceAction) Metadata(_ context.Context, req action.MetadataRequest,
 
 func (a *InstanceAction) Schema(_ context.Context, _ action.SchemaRequest, resp *action.SchemaResponse) {
 	resp.Schema = actionschema.Schema{
-		Description: "Performs a start, stop, or restart action on a NullCloud virtual server instance.\n\nActions are invoked explicitly via `terraform plan -invoke=action.nullcloud_instance_action.<name>` or bound to resource lifecycle events using `action_trigger` blocks.",
+		Description: "Performs a start, stop, or restart action on a NullCloud virtual server instance.\n\nThe action reports the resulting instance status as progress output. Terraform actions cannot update resource state or return values to Terraform configuration, so existing resource outputs may remain stale until a subsequent refresh.\n\nActions are invoked explicitly via `terraform plan -invoke=action.nullcloud_instance_action.<name>` or bound to resource lifecycle events using `action_trigger` blocks.",
 		Attributes: map[string]actionschema.Attribute{
 			"instance_id": actionschema.StringAttribute{
 				Required:    true,
@@ -61,9 +62,15 @@ func (a *InstanceAction) Invoke(ctx context.Context, req action.InvokeRequest, r
 		Message: "Performing " + config.Action.ValueString() + " on instance " + config.InstanceID.ValueString() + "...",
 	})
 
-	_, err := a.client.InstanceAction(config.InstanceID.ValueString(), config.Action.ValueString())
+	instance, err := a.client.InstanceAction(config.InstanceID.ValueString(), config.Action.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Error performing instance action", err.Error())
 		return
 	}
+
+	message := fmt.Sprintf("Action %s completed on instance %s.", config.Action.ValueString(), config.InstanceID.ValueString())
+	if instance.Status != "" {
+		message = fmt.Sprintf("Action %s completed on instance %s; current status: %s.", config.Action.ValueString(), instance.ID, instance.Status)
+	}
+	resp.SendProgress(action.InvokeProgressEvent{Message: message})
 }
