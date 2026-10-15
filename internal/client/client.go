@@ -251,9 +251,10 @@ func (c *Client) DeleteSubnet(id string) error {
 	return nil
 }
 
-func (c *Client) UpdateSubnet(id, name string) (*Subnet, error) {
+func (c *Client) UpdateSubnet(id, name, cidrBlock string) (*Subnet, error) {
 	var sub Subnet
-	if _, err := c.do("PATCH", "/v1/subnets/"+id, map[string]string{"name": name}, &sub); err != nil {
+	body := map[string]string{"name": name, "cidr_block": cidrBlock}
+	if _, err := c.do("PATCH", "/v1/subnets/"+id, body, &sub); err != nil {
 		return nil, err
 	}
 	return &sub, nil

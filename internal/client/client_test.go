@@ -210,6 +210,29 @@ func TestClient_GetSubnet_ServerError(t *testing.T) {
 	}
 }
 
+func TestClient_UpdateSubnet(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "PATCH" || r.URL.Path != "/v1/subnets/sub-1" {
+			t.Errorf("unexpected: %s %s", r.Method, r.URL.Path)
+		}
+		var body map[string]any
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			t.Fatal(err)
+		}
+		if body["name"] != "renamed" || body["cidr_block"] != "10.0.0.0/23" {
+			t.Errorf("unexpected update payload: %#v", body)
+		}
+		w.WriteHeader(200)
+		json.NewEncoder(w).Encode(makeSubnet("sub-1", "renamed", "vpc-1"))
+	}))
+	defer srv.Close()
+
+	c := client.New(srv.URL, "tok")
+	if _, err := c.UpdateSubnet("sub-1", "renamed", "10.0.0.0/23"); err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestClient_DeleteSubnet(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "DELETE" || r.URL.Path != "/v1/subnets/sub-1" {

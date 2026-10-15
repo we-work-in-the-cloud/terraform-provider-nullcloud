@@ -68,9 +68,6 @@ func (r *SubnetResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 			},
 			"cidr_block": schema.StringAttribute{
 				Required: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
 			},
 			"created_at": schema.StringAttribute{
 				Computed: true,
@@ -162,7 +159,7 @@ func (r *SubnetResource) Update(ctx context.Context, req resource.UpdateRequest,
 		return
 	}
 
-	sub, err := r.client.UpdateSubnet(data.ID.ValueString(), data.Name.ValueString())
+	sub, err := r.client.UpdateSubnet(data.ID.ValueString(), data.Name.ValueString(), data.CIDRBlock.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Error updating Subnet", err.Error())
 		return
@@ -170,6 +167,7 @@ func (r *SubnetResource) Update(ctx context.Context, req resource.UpdateRequest,
 
 	data.Name = types.StringValue(sub.Name)
 	data.Status = types.StringValue(sub.Status)
+	data.CIDRBlock = types.StringValue(sub.CIDRBlock)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 	resp.Diagnostics.Append(resp.Identity.SetAttribute(ctx, path.Root("id"), data.ID)...)
