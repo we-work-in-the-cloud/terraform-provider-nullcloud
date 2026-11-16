@@ -30,6 +30,23 @@ jobs:
           terraform_version: "1.16.4"
           terraform_wrapper: false
       - run: make test
+      - name: Test standalone policy plugin
+        working-directory: examples/policy/plugins/src/nullcloud
+        run: |
+          go test ./...
+          go vet ./...
+      - name: Check release configuration
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          version: v2.20.2
+          args: check
+      - name: Package non-publishing snapshot
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          version: v2.20.2
+          args: release --snapshot --clean --skip=publish,sign
+      - name: Verify release archives and checksums
+        run: python3 examples/policy/test_release.py
 
   release:
     needs: test
@@ -55,6 +72,7 @@ jobs:
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
         with:
+          version: v2.20.2
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

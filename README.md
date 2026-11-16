@@ -62,6 +62,10 @@ Run the query with `terraform query`. See [list-resource examples](examples/list
 |---|---|
 | `nullcloud_instance_action` | Perform a `start`, `stop`, or `restart` on an instance |
 
+## Terraform Policy example
+
+The experimental [policy example](examples/policy/) enforces bucket region and CRN rules with local mock tests and a standalone custom-function plugin. Precompiled `nullcloud-policy` release assets are separate from provider installation ZIPs. Local policy testing requires Terraform >= 1.16.0 and tfpolicy; ordinary provider usage is unchanged.
+
 ## Resource Lifecycle
 
 All seven resources can be imported by ID. Names can be changed in place; databases also support in-place plan changes, and load balancers support in-place target changes. Changes to other immutable resource attributes replace the resource.

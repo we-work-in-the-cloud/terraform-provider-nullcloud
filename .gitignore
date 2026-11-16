@@ -7,3 +7,5 @@ coverage.out
 coverage.html
 terraform-provider-nullcloud
 .backend-test/
+examples/policy/plugins/bin/
+examples/policy/__pycache__/

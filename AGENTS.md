@@ -97,6 +97,10 @@ Whenever you make a structural change, update these files before closing the tas
 | New field on a type | No README change needed; regenerate docs with `make docs` |
 | Renamed / removed resource, data source, or action | Same files as the corresponding "new" row — remove or rename the old entries |
 
+## Terraform Policy example
+
+`examples/policy/` is a standalone Terraform Policy demonstration, not a Terraform provider function or part of provider startup. Its plugin lives in a separate Go module under `plugins/src/nullcloud/`; run its `go test ./...` and `go vet ./...` separately from the provider root tests. The `tfpolicy` CLI and Terraform version requirements, policy test commands, binary download/source-build steps, and release packaging checks are documented in `examples/policy/README.md`. GoReleaser publishes separate versioned `nullcloud-policy` archives alongside (not inside) provider installation archives; the plugin uses the same release version and signed checksum manifest. Ordinary provider users do not need tfpolicy or the plugin.
+
 The goal: a reader of either `README.md` or `AGENTS.md` should be able to understand the current state of the provider without reading the code.
 
 ## Resource schema conventions

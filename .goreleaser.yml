@@ -5,7 +5,9 @@ before:
     - go mod tidy
 
 builds:
-  - env:
+  - &provider
+    id: provider
+    env:
       - CGO_ENABLED=0
     mod_timestamp: "{{ .CommitTimestamp }}"
     flags:
@@ -35,10 +37,22 @@ builds:
       - goos: freebsd
         goarch: arm64
     binary: "{{ .ProjectName }}_v{{ .Version }}"
+  - <<: *provider
+    id: policy
+    dir: examples/policy/plugins/src/nullcloud
+    binary: nullcloud-policy
+    ldflags:
+      - "-s -w"
 
 archives:
-  - format: zip
+  - id: provider
+    ids: [provider]
+    formats: [zip]
     name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+  - id: policy
+    ids: [policy]
+    formats: [zip]
+    name_template: "nullcloud-policy_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
 
 checksum:
   name_template: "{{ .ProjectName }}_{{ .Version }}_SHA256SUMS"
